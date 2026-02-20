@@ -68,6 +68,22 @@ const api = {
   // Settings
   getSettings: () => axios.get(`${API}/settings`),
   updateSettings: (data) => axios.put(`${API}/settings`, data),
+
+  // Office Locations
+  getOfficeLocations: () => axios.get(`${API}/office-locations`),
+  createOfficeLocation: (data) => axios.post(`${API}/office-locations`, data),
+  updateOfficeLocation: (id, data) => axios.put(`${API}/office-locations/${id}`, data),
+  deleteOfficeLocation: (id) => axios.delete(`${API}/office-locations/${id}`),
+
+  // Geofence Categories
+  getGeofenceCategories: () => axios.get(`${API}/geofence-categories`),
+  createGeofenceCategory: (data) => axios.post(`${API}/geofence-categories`, data),
+  updateGeofenceCategory: (name, data) => axios.put(`${API}/geofence-categories/${name}`, data),
+
+  // Department Geofence
+  getDepartmentGeofence: () => axios.get(`${API}/department-geofence`),
+  setDepartmentGeofence: (data) => axios.post(`${API}/department-geofence`, data),
+  deleteDepartmentGeofence: (department) => axios.delete(`${API}/department-geofence/${department}`),
 };
 
 export default api;
