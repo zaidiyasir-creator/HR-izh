@@ -535,11 +535,27 @@ const EmployeesPage = () => {
                 </div>
                 <div className="space-y-2">
                   <Label>Department</Label>
-                  <Input
-                    value={editingEmployee.department || ''}
-                    onChange={(e) => setEditingEmployee({ ...editingEmployee, department: e.target.value })}
-                    data-testid="edit-emp-dept"
-                  />
+                  {departments.length > 0 ? (
+                    <Select
+                      value={editingEmployee.department || ''}
+                      onValueChange={(v) => setEditingEmployee({ ...editingEmployee, department: v })}
+                    >
+                      <SelectTrigger data-testid="edit-emp-dept">
+                        <SelectValue placeholder="Select department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {departments.filter(d => d.is_active !== false).map(dept => (
+                          <SelectItem key={dept.id} value={dept.name}>{dept.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input
+                      value={editingEmployee.department || ''}
+                      onChange={(e) => setEditingEmployee({ ...editingEmployee, department: e.target.value })}
+                      data-testid="edit-emp-dept"
+                    />
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>Position</Label>
