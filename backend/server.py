@@ -517,6 +517,85 @@ async def get_leave_balance(user: dict = Depends(get_current_user)):
 
 # ============== ATTENDANCE ROUTES ==============
 
+async def get_employee_geofence_radius(user: dict) -> tuple:
+    """Get the applicable geofence radius for an employee"""
+    # Priority: Employee override > Department > Default category
+    
+    # 1. Check employee-specific geofence category
+    emp_category = user.get("geofence_category")
+    
+    # 2. Check department override
+    if not emp_category and user.get("department"):
+        dept_override = await db.department_geofence.find_one(
+            {"department": user.get("department")}, {"_id": 0}
+        )
+        if dept_override:
+            emp_category = dept_override.get("geofence_category")
+    
+    # 3. Default to "office" category
+    if not emp_category:
+        emp_category = "office"
+    
+    # Get the category configuration
+    category = await db.geofence_categories.find_one(
+        {"name": emp_category, "is_active": {"$ne": False}}, {"_id": 0}
+    )
+    
+    if category:
+        return category.get("radius", 500), category.get("display_name", emp_category)
+    
+    # Default fallback
+    return 500, "Office (Default)"
+
+async def validate_geolocation(latitude: float, longitude: float, user: dict) -> dict:
+    """Validate if user is within allowed geofence radius"""
+    # Get active office locations
+    offices = await db.office_locations.find(
+        {"is_active": {"$ne": False}}, {"_id": 0}
+    ).to_list(100)
+    
+    if not offices:
+        # No offices configured, allow check-in
+        return {"valid": True, "message": "No office locations configured", "distance": 0}
+    
+    # Get employee's allowed radius
+    allowed_radius, category_name = await get_employee_geofence_radius(user)
+    
+    # Check if "remote" category (unlimited)
+    if allowed_radius == -1 or allowed_radius > 50000:  # -1 or >50km = unlimited
+        return {"valid": True, "message": f"Remote worker - no location restriction", "distance": 0}
+    
+    # Find nearest office
+    nearest_office = None
+    min_distance = float('inf')
+    
+    for office in offices:
+        distance = haversine_distance(
+            latitude, longitude,
+            office["latitude"], office["longitude"]
+        )
+        if distance < min_distance:
+            min_distance = distance
+            nearest_office = office
+    
+    # Check if within radius
+    if min_distance <= allowed_radius:
+        return {
+            "valid": True,
+            "message": f"Within {category_name} range of {nearest_office['name']}",
+            "distance": round(min_distance),
+            "office": nearest_office["name"],
+            "allowed_radius": allowed_radius
+        }
+    else:
+        return {
+            "valid": False,
+            "message": f"Too far from office. You are {round(min_distance)}m away, but must be within {allowed_radius}m ({category_name})",
+            "distance": round(min_distance),
+            "office": nearest_office["name"],
+            "allowed_radius": allowed_radius
+        }
+
 @api_router.post("/attendance/check-in")
 async def check_in(data: AttendanceCheckIn, user: dict = Depends(get_current_user)):
     today = datetime.now(timezone.utc).date().isoformat()
@@ -528,6 +607,13 @@ async def check_in(data: AttendanceCheckIn, user: dict = Depends(get_current_use
     if existing and existing.get("check_in"):
         raise HTTPException(status_code=400, detail="Already checked in today")
     
+    # Validate geolocation if provided
+    geo_result = None
+    if data.latitude is not None and data.longitude is not None:
+        geo_result = await validate_geolocation(data.latitude, data.longitude, user)
+        if not geo_result["valid"]:
+            raise HTTPException(status_code=400, detail=geo_result["message"])
+    
     attendance_id = str(uuid.uuid4())
     attendance = {
         "id": attendance_id,
@@ -535,6 +621,10 @@ async def check_in(data: AttendanceCheckIn, user: dict = Depends(get_current_use
         "employee_name": user["full_name"],
         "date": today,
         "check_in": datetime.now(timezone.utc).isoformat(),
+        "check_in_latitude": data.latitude,
+        "check_in_longitude": data.longitude,
+        "check_in_distance": geo_result["distance"] if geo_result else None,
+        "check_in_office": geo_result.get("office") if geo_result else None,
         "check_out": None,
         "location": data.location,
         "notes": data.notes,
@@ -542,7 +632,11 @@ async def check_in(data: AttendanceCheckIn, user: dict = Depends(get_current_use
         "total_hours": 0
     }
     await db.attendance.insert_one(attendance)
-    return serialize_doc(attendance)
+    
+    result = serialize_doc(attendance)
+    if geo_result:
+        result["geo_message"] = geo_result["message"]
+    return result
 
 @api_router.post("/attendance/check-out")
 async def check_out(data: AttendanceCheckOut, user: dict = Depends(get_current_user)):
@@ -557,18 +651,31 @@ async def check_out(data: AttendanceCheckOut, user: dict = Depends(get_current_u
     if attendance.get("check_out"):
         raise HTTPException(status_code=400, detail="Already checked out today")
     
+    # Validate geolocation if provided
+    geo_result = None
+    if data.latitude is not None and data.longitude is not None:
+        geo_result = await validate_geolocation(data.latitude, data.longitude, user)
+        if not geo_result["valid"]:
+            raise HTTPException(status_code=400, detail=geo_result["message"])
+    
     check_out_time = datetime.now(timezone.utc)
     check_in_time = datetime.fromisoformat(attendance["check_in"])
     total_hours = (check_out_time - check_in_time).total_seconds() / 3600
     
     update = {
         "check_out": check_out_time.isoformat(),
+        "check_out_latitude": data.latitude,
+        "check_out_longitude": data.longitude,
+        "check_out_distance": geo_result["distance"] if geo_result else None,
+        "check_out_office": geo_result.get("office") if geo_result else None,
         "total_hours": round(total_hours, 2),
         "notes": data.notes or attendance.get("notes")
     }
     await db.attendance.update_one({"id": attendance["id"]}, {"$set": update})
     
     attendance.update(update)
+    if geo_result:
+        attendance["geo_message"] = geo_result["message"]
     return attendance
 
 @api_router.get("/attendance")
