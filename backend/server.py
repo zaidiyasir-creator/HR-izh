@@ -103,6 +103,7 @@ class EmployeeUpdate(BaseModel):
     salary: Optional[float] = None
     avatar: Optional[str] = None
     status: Optional[str] = None
+    geofence_category: Optional[str] = None  # office, campus, field, remote
 
 # Leave Models
 class LeaveRequest(BaseModel):
@@ -116,11 +117,49 @@ class LeaveUpdate(BaseModel):
 
 # Attendance Models
 class AttendanceCheckIn(BaseModel):
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     location: Optional[str] = None
     notes: Optional[str] = None
 
 class AttendanceCheckOut(BaseModel):
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     notes: Optional[str] = None
+
+# Office Location Models
+class OfficeLocationCreate(BaseModel):
+    name: str
+    address: str
+    latitude: float
+    longitude: float
+    default_radius: int = 500  # meters
+
+class OfficeLocationUpdate(BaseModel):
+    name: Optional[str] = None
+    address: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    default_radius: Optional[int] = None
+    is_active: Optional[bool] = None
+
+# Geofence Category Models
+class GeofenceCategoryCreate(BaseModel):
+    name: str  # office, campus, field, remote
+    display_name: str
+    radius: int  # meters
+    description: Optional[str] = None
+
+class GeofenceCategoryUpdate(BaseModel):
+    display_name: Optional[str] = None
+    radius: Optional[int] = None
+    description: Optional[str] = None
+    is_active: Optional[bool] = None
+
+# Department Geofence Override
+class DepartmentGeofenceUpdate(BaseModel):
+    department: str
+    geofence_category: str
 
 # Claims Models
 class ClaimCreate(BaseModel):
