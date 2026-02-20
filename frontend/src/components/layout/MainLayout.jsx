@@ -142,7 +142,7 @@ const MainLayout = () => {
                 <Menu className="w-5 h-5" />
               </Button>
               <h1 className="text-lg font-semibold font-['Outfit'] hidden sm:block">
-                {navigation.find(n => n.href === location.pathname)?.name || 'Dashboard'}
+                {filteredNavigation.find(n => n.href === location.pathname)?.name || 'Dashboard'}
               </h1>
             </div>
 
