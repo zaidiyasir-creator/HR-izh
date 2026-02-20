@@ -9,6 +9,7 @@ const api = {
 
   // Auth
   changePassword: (data) => axios.post(`${API}/auth/change-password`, data),
+  resetPassword: (data) => axios.post(`${API}/auth/reset-password`, data),
 
   // Employees
   getEmployees: () => axios.get(`${API}/employees`),
