@@ -144,7 +144,7 @@ const EmployeesPage = () => {
       toast.success('Employee updated successfully');
       setIsEditOpen(false);
       setEditingEmployee(null);
-      fetchEmployees();
+      fetchData();
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to update employee');
     }
