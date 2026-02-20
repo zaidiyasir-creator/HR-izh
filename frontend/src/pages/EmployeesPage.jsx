@@ -395,15 +395,26 @@ const EmployeesPage = () => {
                       </TableCell>
                       {isAdmin && (
                         <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteEmployee(emp.id)}
-                            className="text-destructive hover:text-destructive"
-                            data-testid={`delete-emp-${emp.id}`}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEditClick(emp)}
+                              className="text-muted-foreground hover:text-foreground"
+                              data-testid={`edit-emp-${emp.id}`}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteEmployee(emp.id)}
+                              className="text-destructive hover:text-destructive"
+                              data-testid={`delete-emp-${emp.id}`}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       )}
                     </TableRow>
