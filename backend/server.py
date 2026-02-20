@@ -68,6 +68,7 @@ class TokenResponse(BaseModel):
 class EmployeeCreate(BaseModel):
     email: EmailStr
     full_name: str
+    password: Optional[str] = None
     role: str = "employee"
     department: str
     position: str
