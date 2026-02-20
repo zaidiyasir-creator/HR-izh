@@ -5,7 +5,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { 
   LayoutDashboard, Users, CalendarDays, Clock, Megaphone, 
   FileText, Timer, CreditCard, TrendingUp, Settings, LogOut,
-  Menu, X, Sun, Moon, ChevronLeft, ChevronRight
+  Menu, X, Sun, Moon, ChevronLeft, ChevronRight, MapPin
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Avatar, AvatarFallback } from '../ui/avatar';
@@ -28,6 +28,7 @@ const navigation = [
   { name: 'Overtime', href: '/overtime', icon: Timer, roles: ['admin', 'hr', 'manager', 'employee'] },
   { name: 'Payroll', href: '/payroll', icon: CreditCard, roles: ['admin', 'hr'] },
   { name: 'Performance', href: '/performance', icon: TrendingUp, roles: ['admin', 'hr', 'manager'] },
+  { name: 'Geofence', href: '/geofence-settings', icon: MapPin, roles: ['admin', 'hr'] },
   { name: 'Settings', href: '/settings', icon: Settings, roles: ['admin', 'hr', 'manager', 'employee'] },
 ];
 

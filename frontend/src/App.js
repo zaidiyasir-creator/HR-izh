@@ -17,6 +17,7 @@ import OvertimePage from './pages/OvertimePage';
 import PayrollPage from './pages/PayrollPage';
 import PerformancePage from './pages/PerformancePage';
 import SettingsPage from './pages/SettingsPage';
+import GeofenceSettingsPage from './pages/GeofenceSettingsPage';
 
 // Layout
 import MainLayout from './components/layout/MainLayout';
@@ -75,6 +76,7 @@ function AppRoutes() {
         <Route path="payroll" element={<PayrollPage />} />
         <Route path="performance" element={<PerformancePage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="geofence-settings" element={<GeofenceSettingsPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
