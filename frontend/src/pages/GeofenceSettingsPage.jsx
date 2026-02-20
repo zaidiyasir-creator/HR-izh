@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../co
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
+import { Textarea } from '../components/ui/textarea';
 import {
   Dialog,
   DialogContent,
@@ -28,7 +29,7 @@ import {
   TableRow,
 } from '../components/ui/table';
 import { toast } from 'sonner';
-import { MapPin, Plus, Trash2, Building2, Users, Pencil } from 'lucide-react';
+import { MapPin, Plus, Trash2, Building2, Users, Pencil, FolderTree } from 'lucide-react';
 
 const GeofenceSettingsPage = () => {
   const { user } = useAuth();
