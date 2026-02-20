@@ -31,7 +31,7 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - ✅ Auth: Register, Login, JWT token validation
 - ✅ Employees: CRUD operations
 - ✅ Leaves: Request, approve/reject, balance tracking
-- ✅ Attendance: Check-in, check-out, history
+- ✅ Attendance: Check-in, check-out, history (with geolocation validation)
 - ✅ Claims: Submit, approve/reject
 - ✅ Overtime: Request, approve/reject
 - ✅ Announcements: Create, AI generate with GPT-5.2
@@ -40,6 +40,7 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - ✅ Events/Calendar: CRUD with leave overlay
 - ✅ Settings: Company config, leave policies
 - ✅ Dashboard: Stats aggregation
+- ✅ **Geofence Settings (NEW)**: Office locations, categories, department assignments
 
 ### Frontend (React + Shadcn UI)
 - ✅ Login/Register with split-screen design
@@ -57,11 +58,13 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - ✅ Responsive sidebar navigation
 - ✅ Dark/Light mode toggle
 - ✅ Toast notifications
+- ✅ **Geofence Settings Page (NEW)**: Full CRUD for office locations, category editing, department assignments
 
 ### Integrations
 - ✅ OpenAI GPT-5.2 via emergentintegrations (Announcements, Performance)
 - ✅ Stripe Checkout for payroll payments
 - ✅ MongoDB for data persistence
+- ✅ **Geolocation-based Attendance**: Haversine distance calculation for geofencing
 
 ## Prioritized Backlog
 
@@ -71,6 +74,7 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - [x] Leave management
 - [x] Attendance tracking
 - [x] Dashboard overview
+- [x] **Geofence Settings** - Office locations CRUD, category-based radius, department assignments
 
 ### P1 (High Priority - Done)
 - [x] AI announcements
@@ -95,12 +99,14 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - [ ] Document management
 
 ## Next Tasks
-1. Polish advance salary request UI
-2. Add payment voucher/slip generation
-3. Implement email notifications for approvals
-4. Add report export functionality
-5. Mobile responsiveness improvements
-6. Add employee profile editing for self-service
+1. **Smart Announcements AI**: Connect AI generation to LLM (GPT-5.2/Gemini/Claude)
+2. **Secured Payroll**: Complete Stripe integration for payroll processing
+3. **Leave/Claim/Overtime workflows**: Build full request-approval-record flows
+4. **Performance Management**: Build reviews, goals, and feedback features
+5. Polish advance salary request UI
+6. Add payment voucher/slip generation
+7. Implement email notifications for approvals
+8. Add report export functionality
 
 ## Technical Architecture
 - **Frontend**: React 19, Tailwind CSS, Shadcn UI, React Router
