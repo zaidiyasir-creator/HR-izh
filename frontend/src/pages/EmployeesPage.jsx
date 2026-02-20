@@ -105,7 +105,7 @@ const EmployeesPage = () => {
         phone: '',
         salary: ''
       });
-      fetchEmployees();
+      fetchData();
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to add employee');
     }
@@ -117,7 +117,7 @@ const EmployeesPage = () => {
     try {
       await api.deleteEmployee(id);
       toast.success('Employee deleted');
-      fetchEmployees();
+      fetchData();
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to delete employee');
     }
