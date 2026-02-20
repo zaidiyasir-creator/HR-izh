@@ -43,6 +43,7 @@ const EmployeesPage = () => {
   const [formData, setFormData] = useState({
     email: '',
     full_name: '',
+    password: '',
     role: 'employee',
     department: '',
     position: '',
