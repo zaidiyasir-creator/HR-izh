@@ -35,14 +35,16 @@ const GeofenceSettingsPage = () => {
   const { user } = useAuth();
   const [officeLocations, setOfficeLocations] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [departmentAssignments, setDepartmentAssignments] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   
   const [isAddOfficeOpen, setIsAddOfficeOpen] = useState(false);
   const [isAddDeptOpen, setIsAddDeptOpen] = useState(false);
   const [isEditCategoryOpen, setIsEditCategoryOpen] = useState(false);
+  const [isEditDeptOpen, setIsEditDeptOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
+  const [editingDept, setEditingDept] = useState(null);
   
   const [officeForm, setOfficeForm] = useState({
     name: '',
@@ -53,7 +55,8 @@ const GeofenceSettingsPage = () => {
   });
   
   const [deptForm, setDeptForm] = useState({
-    department: '',
+    name: '',
+    description: '',
     geofence_category: 'office'
   });
 
