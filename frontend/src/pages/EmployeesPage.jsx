@@ -90,6 +90,7 @@ const EmployeesPage = () => {
       setFormData({
         email: '',
         full_name: '',
+        password: '',
         role: 'employee',
         department: '',
         position: '',
