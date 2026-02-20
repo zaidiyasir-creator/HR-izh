@@ -839,7 +839,7 @@ async def generate_announcement(data: AnnouncementAIGenerate, user: dict = Depen
             api_key=api_key,
             session_id=f"announcement-{uuid.uuid4()}",
             system_message="You are an HR communications expert. Generate professional company announcements."
-        ).with_model("openai", "gpt-5.2")
+        ).with_model("gemini", "gemini-3-flash-preview")
         
         prompt = f"""Generate a company announcement about: {data.topic}
         
