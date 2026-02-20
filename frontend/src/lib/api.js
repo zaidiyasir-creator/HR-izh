@@ -84,6 +84,12 @@ const api = {
   getDepartmentGeofence: () => axios.get(`${API}/department-geofence`),
   setDepartmentGeofence: (data) => axios.post(`${API}/department-geofence`, data),
   deleteDepartmentGeofence: (department) => axios.delete(`${API}/department-geofence/${department}`),
+
+  // Departments CRUD
+  getDepartments: () => axios.get(`${API}/departments`),
+  createDepartment: (data) => axios.post(`${API}/departments`, data),
+  updateDepartment: (id, data) => axios.put(`${API}/departments/${id}`, data),
+  deleteDepartment: (id) => axios.delete(`${API}/departments/${id}`),
 };
 
 export default api;
