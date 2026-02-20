@@ -397,44 +397,48 @@ const GeofenceSettingsPage = () => {
         </CardContent>
       </Card>
 
-      {/* Department Assignments */}
+      {/* Departments Management */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="font-['Outfit'] flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              Department Geofence Assignments
+              <FolderTree className="w-5 h-5" />
+              Departments
             </CardTitle>
-            <CardDescription>Assign geofence categories to departments</CardDescription>
+            <CardDescription>Manage departments and their geofence settings</CardDescription>
           </div>
           {isAdmin && (
             <Dialog open={isAddDeptOpen} onOpenChange={setIsAddDeptOpen}>
               <DialogTrigger asChild>
-                <Button className="rounded-full" data-testid="add-dept-geofence-btn">
+                <Button className="rounded-full" data-testid="add-dept-btn">
                   <Plus className="w-4 h-4 mr-2" />
-                  Assign Department
+                  Add Department
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle className="font-['Outfit']">Assign Department Geofence</DialogTitle>
+                  <DialogTitle className="font-['Outfit']">Create New Department</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleAddDeptAssignment} className="space-y-4 mt-4">
                   <div className="space-y-2">
-                    <Label>Department</Label>
-                    <Select
-                      value={deptForm.department}
-                      onValueChange={(v) => setDeptForm({ ...deptForm, department: v })}
-                    >
-                      <SelectTrigger data-testid="dept-select">
-                        <SelectValue placeholder="Select department" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {departments.map(dept => (
-                          <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Label>Department Name</Label>
+                    <Input
+                      value={deptForm.name}
+                      onChange={(e) => setDeptForm({ ...deptForm, name: e.target.value })}
+                      placeholder="e.g., Engineering, Sales, HR"
+                      required
+                      data-testid="dept-name-input"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Description (Optional)</Label>
+                    <Textarea
+                      value={deptForm.description}
+                      onChange={(e) => setDeptForm({ ...deptForm, description: e.target.value })}
+                      placeholder="Brief description of the department"
+                      rows={2}
+                      data-testid="dept-desc-input"
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label>Geofence Category</Label>
@@ -442,7 +446,7 @@ const GeofenceSettingsPage = () => {
                       value={deptForm.geofence_category}
                       onValueChange={(v) => setDeptForm({ ...deptForm, geofence_category: v })}
                     >
-                      <SelectTrigger data-testid="category-select">
+                      <SelectTrigger data-testid="dept-category-select">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -453,13 +457,16 @@ const GeofenceSettingsPage = () => {
                         ))}
                       </SelectContent>
                     </Select>
+                    <p className="text-xs text-muted-foreground">
+                      Employees in this department will use this check-in radius
+                    </p>
                   </div>
                   <div className="flex justify-end gap-3 pt-4">
                     <Button type="button" variant="outline" onClick={() => setIsAddDeptOpen(false)}>
                       Cancel
                     </Button>
-                    <Button type="submit" data-testid="dept-submit">
-                      Assign
+                    <Button type="submit" data-testid="dept-submit-btn">
+                      Create Department
                     </Button>
                   </div>
                 </form>
@@ -468,34 +475,61 @@ const GeofenceSettingsPage = () => {
           )}
         </CardHeader>
         <CardContent>
-          {departmentAssignments.length > 0 ? (
+          {departments.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Department</TableHead>
+                  <TableHead>Description</TableHead>
                   <TableHead>Geofence Category</TableHead>
                   <TableHead>Radius</TableHead>
+                  <TableHead>Employees</TableHead>
                   {isAdmin && <TableHead className="text-right">Actions</TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {departmentAssignments.map((assignment) => {
-                  const cat = categories.find(c => c.name === assignment.geofence_category);
+                {departments.map((dept) => {
+                  const cat = categories.find(c => c.name === dept.geofence_category);
                   return (
-                    <TableRow key={assignment.department}>
-                      <TableCell className="font-medium">{assignment.department}</TableCell>
-                      <TableCell>{cat?.display_name || assignment.geofence_category}</TableCell>
-                      <TableCell>{formatRadius(cat?.radius || 500)}</TableCell>
+                    <TableRow key={dept.id}>
+                      <TableCell className="font-medium">{dept.name}</TableCell>
+                      <TableCell className="text-muted-foreground max-w-[200px] truncate">
+                        {dept.description || '-'}
+                      </TableCell>
+                      <TableCell>{cat?.display_name || dept.geofence_category}</TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          cat?.radius === -1 ? 'bg-green-500/15 text-green-700' : 'bg-blue-500/15 text-blue-700'
+                        }`}>
+                          {formatRadius(cat?.radius || 500)}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-500/15">
+                          {getDeptEmployeeCount(dept.name)}
+                        </span>
+                      </TableCell>
                       {isAdmin && (
                         <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteDeptAssignment(assignment.department)}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEditDept(dept)}
+                              data-testid={`edit-dept-${dept.id}`}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDeleteDept(dept.id)}
+                              className="text-destructive"
+                              data-testid={`delete-dept-${dept.id}`}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       )}
                     </TableRow>
@@ -505,9 +539,9 @@ const GeofenceSettingsPage = () => {
             </Table>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
-              <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>No department assignments</p>
-              <p className="text-sm">All departments use default "Office" category (500m)</p>
+              <FolderTree className="w-12 h-12 mx-auto mb-3 opacity-50" />
+              <p>No departments configured</p>
+              <p className="text-sm">Add departments to organize employees and manage geofencing</p>
             </div>
           )}
         </CardContent>
