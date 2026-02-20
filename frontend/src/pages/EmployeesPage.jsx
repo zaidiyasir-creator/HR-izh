@@ -197,6 +197,17 @@ const EmployeesPage = () => {
                         data-testid="emp-email-input"
                       />
                     </div>
+                    <div className="col-span-2 space-y-2">
+                      <Label>Password</Label>
+                      <Input
+                        type="password"
+                        value={formData.password}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        placeholder="Set initial password"
+                        required
+                        data-testid="emp-password-input"
+                      />
+                    </div>
                     <div className="space-y-2">
                       <Label>Role</Label>
                       <Select
