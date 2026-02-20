@@ -1256,6 +1256,133 @@ async def update_settings(data: SettingsUpdate, user: dict = Depends(get_current
     settings = await db.settings.find_one({}, {"_id": 0})
     return settings
 
+# ============== GEOFENCE MANAGEMENT ROUTES ==============
+
+# Office Locations
+@api_router.get("/office-locations")
+async def get_office_locations(user: dict = Depends(get_current_user)):
+    locations = await db.office_locations.find({}, {"_id": 0}).to_list(100)
+    return locations
+
+@api_router.post("/office-locations")
+async def create_office_location(data: OfficeLocationCreate, user: dict = Depends(get_current_user)):
+    if user["role"] not in ["admin", "hr"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    location_id = str(uuid.uuid4())
+    location = {
+        "id": location_id,
+        "name": data.name,
+        "address": data.address,
+        "latitude": data.latitude,
+        "longitude": data.longitude,
+        "default_radius": data.default_radius,
+        "is_active": True,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.office_locations.insert_one(location)
+    return serialize_doc(location)
+
+@api_router.put("/office-locations/{location_id}")
+async def update_office_location(location_id: str, data: OfficeLocationUpdate, user: dict = Depends(get_current_user)):
+    if user["role"] not in ["admin", "hr"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    update_data = {k: v for k, v in data.model_dump().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No data to update")
+    
+    await db.office_locations.update_one({"id": location_id}, {"$set": update_data})
+    location = await db.office_locations.find_one({"id": location_id}, {"_id": 0})
+    return location
+
+@api_router.delete("/office-locations/{location_id}")
+async def delete_office_location(location_id: str, user: dict = Depends(get_current_user)):
+    if user["role"] not in ["admin", "hr"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    await db.office_locations.delete_one({"id": location_id})
+    return {"message": "Office location deleted"}
+
+# Geofence Categories
+@api_router.get("/geofence-categories")
+async def get_geofence_categories(user: dict = Depends(get_current_user)):
+    categories = await db.geofence_categories.find({}, {"_id": 0}).to_list(100)
+    
+    # Return defaults if none exist
+    if not categories:
+        defaults = [
+            {"name": "office", "display_name": "Office Staff", "radius": 500, "description": "Standard office workers", "is_active": True},
+            {"name": "campus", "display_name": "Campus/Complex", "radius": 1000, "description": "Large campus or multiple buildings", "is_active": True},
+            {"name": "field", "display_name": "Field Workers", "radius": 5000, "description": "Sales, service, or site workers", "is_active": True},
+            {"name": "remote", "display_name": "Remote Workers", "radius": -1, "description": "No location restriction", "is_active": True}
+        ]
+        return defaults
+    
+    return categories
+
+@api_router.post("/geofence-categories")
+async def create_geofence_category(data: GeofenceCategoryCreate, user: dict = Depends(get_current_user)):
+    if user["role"] not in ["admin"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    existing = await db.geofence_categories.find_one({"name": data.name})
+    if existing:
+        raise HTTPException(status_code=400, detail="Category already exists")
+    
+    category = {
+        "name": data.name,
+        "display_name": data.display_name,
+        "radius": data.radius,
+        "description": data.description,
+        "is_active": True,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.geofence_categories.insert_one(category)
+    return serialize_doc(category)
+
+@api_router.put("/geofence-categories/{category_name}")
+async def update_geofence_category(category_name: str, data: GeofenceCategoryUpdate, user: dict = Depends(get_current_user)):
+    if user["role"] not in ["admin"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    update_data = {k: v for k, v in data.model_dump().items() if v is not None}
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No data to update")
+    
+    result = await db.geofence_categories.update_one({"name": category_name}, {"$set": update_data}, upsert=True)
+    category = await db.geofence_categories.find_one({"name": category_name}, {"_id": 0})
+    return category
+
+# Department Geofence Assignment
+@api_router.get("/department-geofence")
+async def get_department_geofence(user: dict = Depends(get_current_user)):
+    if user["role"] not in ["admin", "hr"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    assignments = await db.department_geofence.find({}, {"_id": 0}).to_list(100)
+    return assignments
+
+@api_router.post("/department-geofence")
+async def set_department_geofence(data: DepartmentGeofenceUpdate, user: dict = Depends(get_current_user)):
+    if user["role"] not in ["admin", "hr"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    await db.department_geofence.update_one(
+        {"department": data.department},
+        {"$set": {"department": data.department, "geofence_category": data.geofence_category}},
+        upsert=True
+    )
+    return {"message": f"Department {data.department} assigned to {data.geofence_category} category"}
+
+@api_router.delete("/department-geofence/{department}")
+async def delete_department_geofence(department: str, user: dict = Depends(get_current_user)):
+    if user["role"] not in ["admin", "hr"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    await db.department_geofence.delete_one({"department": department})
+    return {"message": f"Geofence assignment removed for {department}"}
+
 # ============== DASHBOARD STATS ==============
 
 @api_router.get("/dashboard/stats")
