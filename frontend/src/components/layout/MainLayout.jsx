@@ -102,7 +102,7 @@ const MainLayout = () => {
 
         {/* Navigation */}
         <nav className="p-4 space-y-1 overflow-y-auto h-[calc(100vh-4rem)]">
-          {navigation.map((item) => {
+          {filteredNavigation.map((item) => {
             const isActive = location.pathname === item.href;
             return (
               <Link
