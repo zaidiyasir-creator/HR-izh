@@ -120,6 +120,7 @@ const EmployeesPage = () => {
 
   const handleEditClick = (emp) => {
     setEditingEmployee(emp);
+    setNewPassword('');
     setIsEditOpen(true);
   };
 
@@ -141,6 +142,27 @@ const EmployeesPage = () => {
       fetchEmployees();
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to update employee');
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!newPassword) {
+      toast.error('Please enter a new password');
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+    try {
+      await api.resetPassword({
+        employee_id: editingEmployee.id,
+        new_password: newPassword
+      });
+      toast.success('Password reset successfully');
+      setNewPassword('');
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to reset password');
     }
   };
 
