@@ -200,6 +200,7 @@ class AnnouncementCreate(BaseModel):
     content: str
     priority: str = "normal"  # low, normal, high, urgent
     target_departments: Optional[List[str]] = None
+    is_ai_generated: bool = False
 
 class AnnouncementAIGenerate(BaseModel):
     topic: str
@@ -818,7 +819,7 @@ async def create_announcement(data: AnnouncementCreate, user: dict = Depends(get
         "author_id": user["id"],
         "author_name": user["full_name"],
         "created_at": datetime.now(timezone.utc).isoformat(),
-        "is_ai_generated": False
+        "is_ai_generated": data.is_ai_generated
     }
     await db.announcements.insert_one(announcement)
     return serialize_doc(announcement)
