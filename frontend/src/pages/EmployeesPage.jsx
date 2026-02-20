@@ -117,6 +117,32 @@ const EmployeesPage = () => {
     }
   };
 
+  const handleEditClick = (emp) => {
+    setEditingEmployee(emp);
+    setIsEditOpen(true);
+  };
+
+  const handleEditEmployee = async (e) => {
+    e.preventDefault();
+    try {
+      await api.updateEmployee(editingEmployee.id, {
+        full_name: editingEmployee.full_name,
+        department: editingEmployee.department,
+        position: editingEmployee.position,
+        phone: editingEmployee.phone,
+        salary: parseFloat(editingEmployee.salary) || 0,
+        role: editingEmployee.role,
+        status: editingEmployee.status
+      });
+      toast.success('Employee updated successfully');
+      setIsEditOpen(false);
+      setEditingEmployee(null);
+      fetchEmployees();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to update employee');
+    }
+  };
+
   const getInitials = (name) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || '?';
   };
