@@ -37,7 +37,8 @@ const AnnouncementsPage = () => {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    priority: 'normal'
+    priority: 'normal',
+    is_ai_generated: false
   });
   
   const [aiForm, setAiForm] = useState({
@@ -69,7 +70,7 @@ const AnnouncementsPage = () => {
       await api.createAnnouncement(formData);
       toast.success('Announcement published');
       setIsAddOpen(false);
-      setFormData({ title: '', content: '', priority: 'normal' });
+      setFormData({ title: '', content: '', priority: 'normal', is_ai_generated: false });
       fetchAnnouncements();
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to publish');
@@ -95,7 +96,8 @@ const AnnouncementsPage = () => {
       setFormData({
         title: aiResult.title,
         content: aiResult.content,
-        priority: 'normal'
+        priority: 'normal',
+        is_ai_generated: true
       });
       setIsAIOpen(false);
       setIsAddOpen(true);
