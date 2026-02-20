@@ -549,6 +549,31 @@ const EmployeesPage = () => {
                   />
                 </div>
               </div>
+
+              {/* Reset Password Section */}
+              <div className="pt-4 border-t border-border">
+                <Label className="text-sm font-medium">Reset Password</Label>
+                <p className="text-xs text-muted-foreground mb-2">Set a new password for this employee</p>
+                <div className="flex gap-2">
+                  <Input
+                    type="password"
+                    placeholder="New password (min 6 chars)"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="flex-1"
+                    data-testid="reset-password-input"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="secondary"
+                    onClick={handleResetPassword}
+                    data-testid="reset-password-btn"
+                  >
+                    Reset
+                  </Button>
+                </div>
+              </div>
+
               <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)}>
                   Cancel
