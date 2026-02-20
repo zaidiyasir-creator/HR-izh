@@ -18,17 +18,17 @@ import {
 } from '../ui/dropdown-menu';
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Employees', href: '/employees', icon: Users },
-  { name: 'Leaves', href: '/leaves', icon: CalendarDays },
-  { name: 'Attendance', href: '/attendance', icon: Clock },
-  { name: 'Announcements', href: '/announcements', icon: Megaphone },
-  { name: 'Calendar', href: '/calendar', icon: CalendarDays },
-  { name: 'Claims', href: '/claims', icon: FileText },
-  { name: 'Overtime', href: '/overtime', icon: Timer },
-  { name: 'Payroll', href: '/payroll', icon: CreditCard },
-  { name: 'Performance', href: '/performance', icon: TrendingUp },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'hr', 'manager', 'employee'] },
+  { name: 'Employees', href: '/employees', icon: Users, roles: ['admin', 'hr', 'manager'] },
+  { name: 'Leaves', href: '/leaves', icon: CalendarDays, roles: ['admin', 'hr', 'manager', 'employee'] },
+  { name: 'Attendance', href: '/attendance', icon: Clock, roles: ['admin', 'hr', 'manager', 'employee'] },
+  { name: 'Announcements', href: '/announcements', icon: Megaphone, roles: ['admin', 'hr', 'manager', 'employee'] },
+  { name: 'Calendar', href: '/calendar', icon: CalendarDays, roles: ['admin', 'hr', 'manager', 'employee'] },
+  { name: 'Claims', href: '/claims', icon: FileText, roles: ['admin', 'hr', 'manager', 'employee'] },
+  { name: 'Overtime', href: '/overtime', icon: Timer, roles: ['admin', 'hr', 'manager', 'employee'] },
+  { name: 'Payroll', href: '/payroll', icon: CreditCard, roles: ['admin', 'hr'] },
+  { name: 'Performance', href: '/performance', icon: TrendingUp, roles: ['admin', 'hr', 'manager'] },
+  { name: 'Settings', href: '/settings', icon: Settings, roles: ['admin', 'hr', 'manager', 'employee'] },
 ];
 
 const MainLayout = () => {
@@ -41,6 +41,11 @@ const MainLayout = () => {
   const getInitials = (name) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U';
   };
+
+  // Filter navigation based on user role
+  const filteredNavigation = navigation.filter(item => 
+    item.roles.includes(user?.role || 'employee')
+  );
 
   return (
     <div className="min-h-screen bg-background">
