@@ -431,6 +431,113 @@ const EmployeesPage = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Edit Employee Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-['Outfit']">Edit Employee</DialogTitle>
+          </DialogHeader>
+          {editingEmployee && (
+            <form onSubmit={handleEditEmployee} className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2 space-y-2">
+                  <Label>Full Name</Label>
+                  <Input
+                    value={editingEmployee.full_name || ''}
+                    onChange={(e) => setEditingEmployee({ ...editingEmployee, full_name: e.target.value })}
+                    required
+                    data-testid="edit-emp-name"
+                  />
+                </div>
+                <div className="col-span-2 space-y-2">
+                  <Label>Email</Label>
+                  <Input
+                    type="email"
+                    value={editingEmployee.email || ''}
+                    disabled
+                    className="bg-muted"
+                  />
+                  <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Role</Label>
+                  <Select
+                    value={editingEmployee.role}
+                    onValueChange={(v) => setEditingEmployee({ ...editingEmployee, role: v })}
+                  >
+                    <SelectTrigger data-testid="edit-emp-role">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="employee">Employee</SelectItem>
+                      <SelectItem value="manager">Manager</SelectItem>
+                      <SelectItem value="hr">HR</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Status</Label>
+                  <Select
+                    value={editingEmployee.status || 'active'}
+                    onValueChange={(v) => setEditingEmployee({ ...editingEmployee, status: v })}
+                  >
+                    <SelectTrigger data-testid="edit-emp-status">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Department</Label>
+                  <Input
+                    value={editingEmployee.department || ''}
+                    onChange={(e) => setEditingEmployee({ ...editingEmployee, department: e.target.value })}
+                    data-testid="edit-emp-dept"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Position</Label>
+                  <Input
+                    value={editingEmployee.position || ''}
+                    onChange={(e) => setEditingEmployee({ ...editingEmployee, position: e.target.value })}
+                    data-testid="edit-emp-position"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Phone</Label>
+                  <Input
+                    value={editingEmployee.phone || ''}
+                    onChange={(e) => setEditingEmployee({ ...editingEmployee, phone: e.target.value })}
+                    data-testid="edit-emp-phone"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Salary ($)</Label>
+                  <Input
+                    type="number"
+                    value={editingEmployee.salary || ''}
+                    onChange={(e) => setEditingEmployee({ ...editingEmployee, salary: e.target.value })}
+                    data-testid="edit-emp-salary"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 pt-4">
+                <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" data-testid="edit-emp-submit">
+                  Save Changes
+                </Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
