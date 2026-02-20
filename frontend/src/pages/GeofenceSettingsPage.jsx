@@ -71,12 +71,12 @@ const GeofenceSettingsPage = () => {
       const [locRes, catRes, deptRes, empRes] = await Promise.all([
         api.getOfficeLocations(),
         api.getGeofenceCategories(),
-        api.getDepartmentGeofence().catch(() => ({ data: [] })),
+        api.getDepartments().catch(() => ({ data: [] })),
         api.getEmployees()
       ]);
       setOfficeLocations(locRes.data);
       setCategories(catRes.data);
-      setDepartmentAssignments(deptRes.data);
+      setDepartments(deptRes.data);
       setEmployees(empRes.data);
     } catch (error) {
       console.error('Failed to fetch data:', error);
