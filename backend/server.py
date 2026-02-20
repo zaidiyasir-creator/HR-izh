@@ -1395,6 +1395,111 @@ async def delete_department_geofence(department: str, user: dict = Depends(get_c
     await db.department_geofence.delete_one({"department": department})
     return {"message": f"Geofence assignment removed for {department}"}
 
+# ============== DEPARTMENTS CRUD ==============
+
+@api_router.get("/departments")
+async def get_departments(user: dict = Depends(get_current_user)):
+    departments = await db.departments.find({}, {"_id": 0}).to_list(100)
+    return departments
+
+@api_router.post("/departments")
+async def create_department(data: DepartmentCreate, user: dict = Depends(get_current_user)):
+    if user["role"] not in ["admin", "hr"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Check if department already exists
+    existing = await db.departments.find_one({"name": data.name})
+    if existing:
+        raise HTTPException(status_code=400, detail="Department already exists")
+    
+    department = {
+        "id": str(uuid.uuid4()),
+        "name": data.name,
+        "description": data.description,
+        "geofence_category": data.geofence_category,
+        "is_active": True,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.departments.insert_one(department)
+    
+    # Also create department-geofence assignment
+    await db.department_geofence.update_one(
+        {"department": data.name},
+        {"$set": {"department": data.name, "geofence_category": data.geofence_category}},
+        upsert=True
+    )
+    
+    return {k: v for k, v in department.items() if k != "_id"}
+
+@api_router.put("/departments/{dept_id}")
+async def update_department(dept_id: str, data: DepartmentUpdate, user: dict = Depends(get_current_user)):
+    if user["role"] not in ["admin", "hr"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Get existing department
+    existing = await db.departments.find_one({"id": dept_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Department not found")
+    
+    old_name = existing.get("name")
+    update_data = {}
+    
+    if data.name is not None:
+        update_data["name"] = data.name
+    if data.description is not None:
+        update_data["description"] = data.description
+    if data.geofence_category is not None:
+        update_data["geofence_category"] = data.geofence_category
+    if data.is_active is not None:
+        update_data["is_active"] = data.is_active
+    
+    if update_data:
+        await db.departments.update_one({"id": dept_id}, {"$set": update_data})
+        
+        # Update department-geofence assignment if geofence category changed
+        new_name = update_data.get("name", old_name)
+        new_category = update_data.get("geofence_category", existing.get("geofence_category"))
+        
+        # If name changed, update all employees and geofence assignment
+        if data.name is not None and data.name != old_name:
+            await db.users.update_many(
+                {"department": old_name},
+                {"$set": {"department": data.name}}
+            )
+            await db.department_geofence.delete_one({"department": old_name})
+        
+        await db.department_geofence.update_one(
+            {"department": new_name},
+            {"$set": {"department": new_name, "geofence_category": new_category}},
+            upsert=True
+        )
+    
+    updated = await db.departments.find_one({"id": dept_id}, {"_id": 0})
+    return updated
+
+@api_router.delete("/departments/{dept_id}")
+async def delete_department(dept_id: str, user: dict = Depends(get_current_user)):
+    if user["role"] not in ["admin", "hr"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Get department name before deletion
+    dept = await db.departments.find_one({"id": dept_id})
+    if not dept:
+        raise HTTPException(status_code=404, detail="Department not found")
+    
+    # Check if any employees are in this department
+    employee_count = await db.users.count_documents({"department": dept["name"]})
+    if employee_count > 0:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Cannot delete department with {employee_count} employee(s). Reassign employees first."
+        )
+    
+    await db.departments.delete_one({"id": dept_id})
+    await db.department_geofence.delete_one({"department": dept["name"]})
+    
+    return {"message": f"Department '{dept['name']}' deleted"}
+
 # ============== DASHBOARD STATS ==============
 
 @api_router.get("/dashboard/stats")
