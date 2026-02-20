@@ -592,6 +592,62 @@ const GeofenceSettingsPage = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Edit Department Dialog */}
+      <Dialog open={isEditDeptOpen} onOpenChange={setIsEditDeptOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-['Outfit']">Edit Department</DialogTitle>
+          </DialogHeader>
+          {editingDept && (
+            <div className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label>Department Name</Label>
+                <Input
+                  value={editingDept.name}
+                  onChange={(e) => setEditingDept({ ...editingDept, name: e.target.value })}
+                  data-testid="edit-dept-name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={editingDept.description || ''}
+                  onChange={(e) => setEditingDept({ ...editingDept, description: e.target.value })}
+                  rows={2}
+                  data-testid="edit-dept-desc"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Geofence Category</Label>
+                <Select
+                  value={editingDept.geofence_category}
+                  onValueChange={(v) => setEditingDept({ ...editingDept, geofence_category: v })}
+                >
+                  <SelectTrigger data-testid="edit-dept-category">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map(cat => (
+                      <SelectItem key={cat.name} value={cat.name}>
+                        {cat.display_name} ({formatRadius(cat.radius)})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex justify-end gap-3 pt-4">
+                <Button variant="outline" onClick={() => setIsEditDeptOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveDept} data-testid="edit-dept-save">
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
