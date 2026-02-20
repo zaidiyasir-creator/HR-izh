@@ -37,6 +37,7 @@ const EmployeesPage = () => {
   const { user } = useAuth();
   const [employees, setEmployees] = useState([]);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -57,7 +58,7 @@ const EmployeesPage = () => {
   const isAdmin = user?.role === 'admin' || user?.role === 'hr';
 
   useEffect(() => {
-    fetchEmployees();
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -69,13 +70,17 @@ const EmployeesPage = () => {
     setFilteredEmployees(filtered);
   }, [searchQuery, employees]);
 
-  const fetchEmployees = async () => {
+  const fetchData = async () => {
     try {
-      const response = await api.getEmployees();
-      setEmployees(response.data);
-      setFilteredEmployees(response.data);
+      const [empRes, deptRes] = await Promise.all([
+        api.getEmployees(),
+        api.getDepartments().catch(() => ({ data: [] }))
+      ]);
+      setEmployees(empRes.data);
+      setFilteredEmployees(empRes.data);
+      setDepartments(deptRes.data);
     } catch (error) {
-      toast.error('Failed to fetch employees');
+      toast.error('Failed to fetch data');
     } finally {
       setLoading(false);
     }
