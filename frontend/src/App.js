@@ -6,7 +6,6 @@ import { ThemeProvider } from './context/ThemeContext';
 
 // Pages
 import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import EmployeesPage from './pages/EmployeesPage';
 import LeavesPage from './pages/LeavesPage';
