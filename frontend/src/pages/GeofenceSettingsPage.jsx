@@ -117,23 +117,45 @@ const GeofenceSettingsPage = () => {
   const handleAddDeptAssignment = async (e) => {
     e.preventDefault();
     try {
-      await api.setDepartmentGeofence(deptForm);
-      toast.success('Department geofence assigned');
+      await api.createDepartment(deptForm);
+      toast.success('Department created successfully');
       setIsAddDeptOpen(false);
-      setDeptForm({ department: '', geofence_category: 'office' });
+      setDeptForm({ name: '', description: '', geofence_category: 'office' });
       fetchData();
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to assign');
+      toast.error(error.response?.data?.detail || 'Failed to create department');
     }
   };
 
-  const handleDeleteDeptAssignment = async (department) => {
+  const handleDeleteDept = async (id) => {
+    if (!window.confirm('Delete this department?')) return;
     try {
-      await api.deleteDepartmentGeofence(department);
-      toast.success('Assignment removed');
+      await api.deleteDepartment(id);
+      toast.success('Department deleted');
       fetchData();
     } catch (error) {
-      toast.error('Failed to delete');
+      toast.error(error.response?.data?.detail || 'Failed to delete');
+    }
+  };
+
+  const handleEditDept = (dept) => {
+    setEditingDept({ ...dept });
+    setIsEditDeptOpen(true);
+  };
+
+  const handleSaveDept = async () => {
+    try {
+      await api.updateDepartment(editingDept.id, {
+        name: editingDept.name,
+        description: editingDept.description,
+        geofence_category: editingDept.geofence_category
+      });
+      toast.success('Department updated');
+      setIsEditDeptOpen(false);
+      setEditingDept(null);
+      fetchData();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to update');
     }
   };
 
