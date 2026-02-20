@@ -290,12 +290,13 @@ async def create_employee(data: EmployeeCreate, user: dict = Depends(get_current
         raise HTTPException(status_code=400, detail="Email already exists")
     
     emp_id = str(uuid.uuid4())
-    default_password = hash_password("Welcome123!")
+    # Use provided password or default
+    password = hash_password(data.password) if data.password else hash_password("Welcome123!")
     
     employee = {
         "id": emp_id,
         "email": data.email,
-        "password": default_password,
+        "password": password,
         "full_name": data.full_name,
         "role": data.role,
         "department": data.department,
