@@ -61,6 +61,34 @@ const SettingsPage = () => {
     }
   };
 
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    
+    if (passwordData.new_password !== passwordData.confirm_password) {
+      toast.error('New passwords do not match');
+      return;
+    }
+    
+    if (passwordData.new_password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+    
+    setChangingPassword(true);
+    try {
+      await api.changePassword({
+        current_password: passwordData.current_password,
+        new_password: passwordData.new_password
+      });
+      toast.success('Password changed successfully');
+      setPasswordData({ current_password: '', new_password: '', confirm_password: '' });
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to change password');
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
   const colorPresets = [
     { name: 'Slate', value: '#0F172A' },
     { name: 'Blue', value: '#1E40AF' },
