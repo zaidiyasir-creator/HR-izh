@@ -1,0 +1,218 @@
+{
+  "brand_identity": {
+    "name": "VANTAGE HR",
+    "tagline": "Orchestrate your workforce, don't just manage it.",
+    "description": "A high-performance HR operating system that blends Swiss-style precision with AI-driven insights. It transforms mundane HR tasks into a command-center experience.",
+    "emotional_archetype": "The Performance Pro (Elite Athleticism & Precision) + Swiss High-Contrast",
+    "visual_style": "Glass Command Center: High-contrast data layers, localized glassmorphism for floating contexts, and kinetic accent colors."
+  },
+  "design_principles": [
+    "Fusion over Imitation: Mix Swiss Poster layouts with Sci-Fi HUD density.",
+    "Emotion First: HR is about people. Use warm tones for personal profiles, cool precision for data.",
+    "Content is King: Data isn't just rows; it's a story of performance.",
+    "Negative Space: Dense data needs breathing room. Use p-8 where others use p-4.",
+    "Contrast: Light Mode is Stark (Paper & Ink). Dark Mode is Deep (Obsidian & Neon)."
+  ],
+  "typography": {
+    "font_family": {
+      "headings": "Outfit, sans-serif",
+      "body": "DM Sans, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "scale": {
+      "h1": "text-4xl md:text-6xl font-bold tracking-tight",
+      "h2": "text-3xl md:text-4xl font-semibold tracking-tight",
+      "h3": "text-2xl font-medium tracking-tight",
+      "body_lg": "text-lg leading-relaxed",
+      "body_base": "text-base leading-relaxed text-muted-foreground",
+      "caption": "text-sm font-medium tracking-wide uppercase text-muted-foreground"
+    },
+    "rules": [
+      "No 'Inter' for Headings. Use 'Outfit' for that modern tech feel.",
+      "Headings > 32px must have tracking-tight.",
+      "Overlines must be uppercase and tracking-widest."
+    ]
+  },
+  "colors": {
+    "theme_strategy": "Dual-Mode: Day Shift (Paper) & Night Shift (Obsidian)",
+    "light_mode": {
+      "background": "#FAFAFA",
+      "foreground": "#0F172A",
+      "card": "#FFFFFF",
+      "card_foreground": "#0F172A",
+      "primary": "#0F172A",
+      "primary_foreground": "#FAFAFA",
+      "secondary": "#F1F5F9",
+      "secondary_foreground": "#0F172A",
+      "muted": "#F1F5F9",
+      "muted_foreground": "#64748B",
+      "accent": "#F1F5F9",
+      "accent_foreground": "#0F172A",
+      "destructive": "#EF4444",
+      "destructive_foreground": "#FAFAFA",
+      "border": "#E2E8F0",
+      "input": "#E2E8F0",
+      "ring": "#0F172A",
+      "chart_1": "#0F172A",
+      "chart_2": "#3B82F6",
+      "chart_3": "#10B981",
+      "chart_4": "#F59E0B",
+      "chart_5": "#EF4444"
+    },
+    "dark_mode": {
+      "background": "#020617",
+      "foreground": "#F8FAFC",
+      "card": "#0F172A",
+      "card_foreground": "#F8FAFC",
+      "primary": "#F8FAFC",
+      "primary_foreground": "#020617",
+      "secondary": "#1E293B",
+      "secondary_foreground": "#F8FAFC",
+      "muted": "#1E293B",
+      "muted_foreground": "#94A3B8",
+      "accent": "#1E293B",
+      "accent_foreground": "#F8FAFC",
+      "destructive": "#7F1D1D",
+      "destructive_foreground": "#F8FAFC",
+      "border": "#1E293B",
+      "input": "#1E293B",
+      "ring": "#CBD5E1",
+      "chart_1": "#3B82F6",
+      "chart_2": "#10B981",
+      "chart_3": "#F59E0B",
+      "chart_4": "#EF4444",
+      "chart_5": "#8B5CF6"
+    },
+    "special_accents": {
+      "ai_glow": "box-shadow: 0 0 20px -5px rgba(59, 130, 246, 0.5)",
+      "success_pulse": "#10B981",
+      "warning_signal": "#F59E0B",
+      "error_alert": "#EF4444"
+    }
+  },
+  "layout": {
+    "spacing_system": [
+      "p-1", "p-2", "p-4", "p-6", "p-8", "p-12", "p-16", "p-20", "p-24", "p-32"
+    ],
+    "container_padding": "px-4 md:px-8 lg:px-12",
+    "bento_grid": {
+      "wrapper": "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-[minmax(180px,auto)]",
+      "hero_tile": "col-span-1 md:col-span-2 lg:col-span-3 row-span-2",
+      "stat_tile": "col-span-1 row-span-1",
+      "tall_tile": "col-span-1 md:col-span-1 row-span-2",
+      "wide_tile": "col-span-1 md:col-span-2 lg:col-span-2 row-span-1"
+    },
+    "sidebar": {
+      "width": "w-64",
+      "collapsed_width": "w-20",
+      "style": "fixed left-0 top-0 h-full border-r border-border bg-card/50 backdrop-blur-xl z-50"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "rounded-full px-8 py-6 font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95",
+      "secondary": "rounded-full px-6 py-6 font-medium border border-border bg-transparent hover:bg-secondary transition-colors",
+      "ghost": "rounded-lg px-4 py-2 hover:bg-accent hover:text-accent-foreground text-sm font-medium",
+      "ai_action": "bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full px-6 py-2 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all"
+    },
+    "cards": {
+      "default": "rounded-xl border border-border bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow duration-300",
+      "glass": "rounded-xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl",
+      "interactive": "cursor-pointer group relative overflow-hidden rounded-xl border border-border bg-card p-6 hover:border-primary/50 transition-colors"
+    },
+    "inputs": {
+      "default": "h-12 rounded-lg border border-input bg-transparent px-4 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+    },
+    "badges": {
+      "status": "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+      "success": "border-transparent bg-green-500/15 text-green-700 hover:bg-green-500/25 dark:text-green-400",
+      "warning": "border-transparent bg-yellow-500/15 text-yellow-700 hover:bg-yellow-500/25 dark:text-yellow-400",
+      "error": "border-transparent bg-red-500/15 text-red-700 hover:bg-red-500/25 dark:text-red-400"
+    },
+    "charts": {
+      "library": "recharts (wrapped in Shadcn Chart)",
+      "style": "Clean, minimal axis lines, customized tooltips with glassmorphism. Use gradient fills for area charts."
+    }
+  },
+  "motion": {
+    "library": "framer-motion",
+    "transitions": {
+      "default": { "type": "spring", "stiffness": 300, "damping": 30 },
+      "slow": { "duration": 0.8, "ease": [0.16, 1, 0.3, 1] },
+      "stagger": { "staggerChildren": 0.1 }
+    },
+    "variants": {
+      "fadeIn": {
+        "initial": { "opacity": 0, "y": 20 },
+        "animate": { "opacity": 1, "y": 0 },
+        "exit": { "opacity": 0, "y": -20 }
+      },
+      "scaleIn": {
+        "initial": { "opacity": 0, "scale": 0.9 },
+        "animate": { "opacity": 1, "scale": 1 }
+      }
+    }
+  },
+  "visual_enhancers": {
+    "textures": "Use subtle grain overlay (opacity 0.03) on solid backgrounds to reduce digital flatness.",
+    "gradients": "No full-screen gradients. Use 'mesh' gradients restricted to specific areas (e.g., behind a floating card).",
+    "ai_indicators": "Use a subtle 'breathing' glow animation (box-shadow) for AI-generated insights or announcements.",
+    "tracing_beam": "Use on the 'Smart Announcement' or 'Performance Review' cards to guide the user's eye."
+  },
+  "assets": {
+    "images": [
+      {
+        "category": "Hero/Team",
+        "url": "https://images.pexels.com/photos/8117479/pexels-photo-8117479.jpeg",
+        "description": "Diverse group collaborating in modern office. Use for Landing Page Hero or 'About' section."
+      },
+      {
+        "category": "Profile/User",
+        "url": "https://images.pexels.com/photos/6347740/pexels-photo-6347740.jpeg",
+        "description": "Professional ethnic woman. Use for User Profile mockups or Testimonials."
+      },
+      {
+        "category": "AI/Abstract",
+        "url": "https://images.pexels.com/photos/17485657/pexels-photo-17485657.png",
+        "description": "3D Neural Network. Use for 'Smart Insights' or 'AI Performance' background (with overlay)."
+      },
+      {
+        "category": "Login/Architecture",
+        "url": "https://images.pexels.com/photos/18435276/pexels-photo-18435276.jpeg",
+        "description": "Modern building architecture. Use for Login/Register page split background."
+      }
+    ],
+    "icons": {
+      "primary_set": "lucide-react",
+      "style": "Stroke width 1.5px (Light/Regular). Consistent size (w-5 h-5 for UI, w-8 h-8 for features)."
+    }
+  },
+  "ai_features": {
+    "smart_announcements": {
+      "ui_pattern": "Glassmorphic overlay or modal. Text streams in (typewriter effect).",
+      "visual_cue": "Sparkles icon (Lucide 'Sparkles') with a gradient text fill."
+    },
+    "performance_insights": {
+      "ui_pattern": "Sidebar widget or Dashboard Hero Tile.",
+      "visual_cue": "Animated progress bars or radar charts showing skills."
+    }
+  },
+  "instructions_to_main_agent": [
+    "Install 'lucide-react', 'framer-motion', 'recharts', 'clsx', 'tailwind-merge' if not present.",
+    "Use 'sonner' for all toast notifications.",
+    "Implement the 'Theme Switcher' immediately in the Navbar.",
+    "For the 'Smart Announcement', mock the AI generation with a delay and a typewriter effect.",
+    "Use the provided image URLs for placeholders. DO NOT use grey blocks.",
+    "Prioritize the 'Bento Grid' layout for the main dashboard.",
+    "Ensure the 'Login' page uses the split layout: 50% Image (Architecture), 50% Form.",
+    "Add 'data-testid' to all interactive elements."
+  ],
+  "universal_guidelines": [
+    "Do NOT use 'Inter' for headings. Import 'Outfit' and 'DM Sans' from Google Fonts.",
+    "Avoid generic 'center-everything'. Use asymmetry.",
+    "Buttons must have interaction states (hover, active, focus).",
+    "Inputs must have a clear focus ring (ring-2 ring-primary).",
+    "Use 'gap-6' or 'gap-8' for grid layouts to let content breathe.",
+    "Charts must be accessible (use patterns or high contrast colors)."
+  ]
+}
