@@ -186,8 +186,10 @@ const GeofenceSettingsPage = () => {
     return `${radius} m`;
   };
 
-  // Get unique departments
-  const departments = [...new Set(employees.map(e => e.department).filter(Boolean))];
+  // Get employee count per department
+  const getDeptEmployeeCount = (deptName) => {
+    return employees.filter(e => e.department === deptName).length;
+  };
 
   if (loading) {
     return (
