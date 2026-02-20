@@ -283,12 +283,25 @@ const EmployeesPage = () => {
                     </div>
                     <div className="space-y-2">
                       <Label>Department</Label>
-                      <Input
-                        value={formData.department}
-                        onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                        required
-                        data-testid="emp-dept-input"
-                      />
+                      {departments.length > 0 ? (
+                        <Select
+                          value={formData.department}
+                          onValueChange={(v) => setFormData({ ...formData, department: v })}
+                        >
+                          <SelectTrigger data-testid="emp-dept-select">
+                            <SelectValue placeholder="Select department" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {departments.filter(d => d.is_active !== false).map(dept => (
+                              <SelectItem key={dept.id} value={dept.name}>{dept.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <div className="text-sm text-muted-foreground p-2 border rounded-md bg-muted/50">
+                          No departments configured. Please add departments in Geofence Settings first.
+                        </div>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label>Position</Label>
