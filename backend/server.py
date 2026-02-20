@@ -156,6 +156,18 @@ class GeofenceCategoryUpdate(BaseModel):
     description: Optional[str] = None
     is_active: Optional[bool] = None
 
+# Department Models
+class DepartmentCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    geofence_category: str = "office"
+
+class DepartmentUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    geofence_category: Optional[str] = None
+    is_active: Optional[bool] = None
+
 # Department Geofence Override
 class DepartmentGeofenceUpdate(BaseModel):
     department: str
