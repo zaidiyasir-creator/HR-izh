@@ -1,0 +1,122 @@
+{
+  "summary": "Tested Smart Announcements AI feature using Gemini 3 Flash. Backend AI generation fully working (11/12 tests passed). Frontend UI flows working correctly: AI Generate button, dialog with topic/tone/audience, generation, Regenerate, and Use This button. CRITICAL BUG: AI badge not showing on published AI announcements because is_ai_generated flag is not passed from frontend to backend.",
+
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/announcements", "issue": "Backend hardcodes is_ai_generated: False - should accept is_ai_generated from request body when passed"}
+    ]
+  },
+
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "AnnouncementsPage - handleUseGenerated",
+        "issue": "CRITICAL: AI badge not showing on published AI announcements. When 'Use This' transfers AI content to form, is_ai_generated flag is not included in formData. Published announcements don't have AI badge.",
+        "selector": "[data-testid='use-generated-btn']",
+        "priority": "HIGH",
+        "fix_details": "In handleUseGenerated(), set formData.is_ai_generated = true. In handleSubmit(), pass is_ai_generated to api.createAnnouncement(). Backend /api/announcements endpoint needs to accept is_ai_generated field."
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Dashboard table",
+        "issues": ["Console warning: In HTML, <tr> cannot be a child of <span> - hydration error. React component wrapping issue in DashboardPage."]
+      }
+    ]
+  },
+
+  "passed_tests": [
+    "Backend: POST /api/auth/login - admin login works",
+    "Backend: POST /api/announcements/generate - professional tone works",
+    "Backend: POST /api/announcements/generate - friendly tone works",
+    "Backend: POST /api/announcements/generate - urgent tone works",
+    "Backend: POST /api/announcements/generate - celebratory tone works",
+    "Backend: POST /api/announcements/generate - no target audience (defaults to all employees)",
+    "Backend: POST /api/announcements - creates manual announcement",
+    "Backend: POST /api/announcements - creates announcement with AI-generated content",
+    "Backend: GET /api/announcements - returns list with is_ai_generated field",
+    "Backend: POST /api/announcements/generate - requires authentication (401 without token)",
+    "Backend: POST /api/announcements - requires authentication (401 without token)",
+    "Frontend: AI Generate button opens AI Announcement Generator dialog",
+    "Frontend: Dialog has topic, tone dropdown, target audience fields",
+    "Frontend: Tone dropdown has Professional, Friendly, Urgent, Celebratory options",
+    "Frontend: Generate button triggers AI generation with loading state",
+    "Frontend: AI result shows title and content in styled container",
+    "Frontend: Regenerate button clears result and returns to form with topic preserved",
+    "Frontend: Use This button transfers AI title and content to Create Announcement form",
+    "Frontend: Publish button creates announcement and shows success toast"
+  ],
+
+  "test_report_links": [
+    "/app/backend/tests/test_announcements_ai.py",
+    "/app/test_reports/pytest/announcements_ai_results.xml"
+  ],
+
+  "action_items": [
+    "FIX BUG: AI badge not showing on published AI announcements",
+    "1. In AnnouncementsPage.jsx handleUseGenerated(): Add is_ai_generated: true to formData when using AI content",
+    "2. Update formData state to include is_ai_generated field (default false for manual, true when from AI)",
+    "3. Modify handleSubmit() to pass is_ai_generated flag to createAnnouncement API",
+    "4. Update backend POST /api/announcements to accept and use is_ai_generated from request body instead of hardcoding False",
+    "Minor: Fix React hydration warning in DashboardPage - <tr> cannot be child of <span>"
+  ],
+
+  "critical_code_review_comments": [
+    "AnnouncementsPage.jsx line 93-103: handleUseGenerated() does not include is_ai_generated from aiResult, causing AI badge to never appear",
+    "server.py line 821: is_ai_generated is hardcoded to False in createAnnouncement - should accept from request body"
+  ],
+
+  "updated_files": [
+    "/app/backend/tests/test_announcements_ai.py"
+  ],
+
+  "success_rate": {
+    "backend": "100% (11/11 tests passed, 1 skipped for missing employee credentials)",
+    "frontend": "90% (All UI flows work, but AI badge feature broken)"
+  },
+
+  "seed_data_creation": "Created test announcements via API during testing. Manual and AI-generated content test data exists.",
+
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+
+  "context_for_next_testing_agent": "Smart Announcements AI feature tested. AI generation via Gemini 3 Flash works correctly. Main bug: is_ai_generated flag not passed when publishing AI-generated announcements, so AI badge never shows. Fix requires frontend changes to track and pass flag, and backend to accept it.",
+
+  "test_credentials": {
+    "admin": {"email": "admin@vantage.com", "password": "admin123"}
+  },
+
+  "features_tested": [
+    "AI Generate button opens AI Announcement Generator dialog - PASS",
+    "AI generation with topic, tone, and target audience works - PASS",
+    "Generated content displays with title and content - PASS",
+    "Use This button transfers AI content to Create Announcement form - PASS",
+    "Regenerate button allows generating new content - PASS",
+    "Published AI announcements show AI badge - FAIL (is_ai_generated flag not passed)"
+  ],
+
+  "rca_of_the_issue": {
+    "bug": "AI badge not showing on published AI-generated announcements",
+    "root_cause": "1. Frontend handleUseGenerated() at line 93-103 only copies title, content, priority from aiResult - does NOT copy is_ai_generated flag. 2. Backend createAnnouncement() at line 821 hardcodes is_ai_generated: False instead of accepting from request body.",
+    "reproduction_steps": [
+      "1. Login as admin",
+      "2. Go to Announcements page",
+      "3. Click AI Generate button",
+      "4. Fill topic and click Generate",
+      "5. Click 'Use This' to transfer content",
+      "6. Click Publish",
+      "7. Observe: Announcement appears WITHOUT AI badge"
+    ],
+    "expected_behavior": "Published announcements created from AI-generated content should display the AI badge (sparkles icon with 'AI' text)",
+    "actual_behavior": "No AI badge shown because is_ai_generated is always False in database",
+    "mitigation_steps": [
+      "Update formData state to include is_ai_generated",
+      "In handleUseGenerated(), set is_ai_generated: true when using AI content",
+      "Pass is_ai_generated to createAnnouncement API call",
+      "Update backend AnnouncementCreate model to include is_ai_generated field",
+      "Use request body is_ai_generated value in backend instead of hardcoding False"
+    ]
+  }
+}
