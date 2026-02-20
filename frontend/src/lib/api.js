@@ -7,6 +7,9 @@ const api = {
   // Dashboard
   getDashboardStats: () => axios.get(`${API}/dashboard/stats`),
 
+  // Auth
+  changePassword: (data) => axios.post(`${API}/auth/change-password`, data),
+
   // Employees
   getEmployees: () => axios.get(`${API}/employees`),
   getEmployee: (id) => axios.get(`${API}/employees/${id}`),
