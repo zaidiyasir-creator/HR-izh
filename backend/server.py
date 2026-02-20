@@ -303,6 +303,31 @@ async def change_password(data: ChangePasswordRequest, user: dict = Depends(get_
     
     return {"message": "Password changed successfully"}
 
+class AdminResetPasswordRequest(BaseModel):
+    employee_id: str
+    new_password: str
+
+@api_router.post("/auth/reset-password")
+async def admin_reset_password(data: AdminResetPasswordRequest, user: dict = Depends(get_current_user)):
+    # Only admin and HR can reset passwords
+    if user["role"] not in ["admin", "hr"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Check if employee exists
+    employee = await db.users.find_one({"id": data.employee_id}, {"_id": 0})
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found")
+    
+    # Validate new password
+    if len(data.new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    
+    # Update password
+    new_hashed = hash_password(data.new_password)
+    await db.users.update_one({"id": data.employee_id}, {"$set": {"password": new_hashed}})
+    
+    return {"message": f"Password reset successfully for {employee['full_name']}"}
+
 # ============== EMPLOYEE ROUTES ==============
 
 @api_router.post("/employees")
