@@ -123,13 +123,8 @@ const LoginPage = () => {
                 </Button>
               </form>
 
-              <div className="mt-6 text-center">
-                <p className="text-muted-foreground">
-                  Don't have an account?{' '}
-                  <Link to="/register" className="text-primary font-medium hover:underline" data-testid="register-link">
-                    Sign up
-                  </Link>
-                </p>
+              <div className="mt-6 text-center text-sm text-muted-foreground">
+                <p>Contact your administrator to get access</p>
               </div>
             </CardContent>
           </Card>
