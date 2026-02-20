@@ -30,7 +30,7 @@ import {
 } from '../components/ui/table';
 import { Avatar, AvatarFallback } from '../components/ui/avatar';
 import { toast } from 'sonner';
-import { Plus, Search, Mail, Phone, Building2, Briefcase, Trash2, Edit } from 'lucide-react';
+import { Plus, Search, Mail, Phone, Building2, Briefcase, Trash2, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 
 const EmployeesPage = () => {
@@ -40,6 +40,8 @@ const EmployeesPage = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editingEmployee, setEditingEmployee] = useState(null);
   const [formData, setFormData] = useState({
     email: '',
     full_name: '',
