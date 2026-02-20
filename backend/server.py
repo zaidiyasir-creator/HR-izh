@@ -278,6 +278,31 @@ async def get_me(user: dict = Depends(get_current_user)):
         created_at=user["created_at"]
     )
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+@api_router.post("/auth/change-password")
+async def change_password(data: ChangePasswordRequest, user: dict = Depends(get_current_user)):
+    # Get full user with password
+    db_user = await db.users.find_one({"id": user["id"]}, {"_id": 0})
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Verify current password
+    if not verify_password(data.current_password, db_user["password"]):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    
+    # Validate new password
+    if len(data.new_password) < 6:
+        raise HTTPException(status_code=400, detail="New password must be at least 6 characters")
+    
+    # Update password
+    new_hashed = hash_password(data.new_password)
+    await db.users.update_one({"id": user["id"]}, {"$set": {"password": new_hashed}})
+    
+    return {"message": "Password changed successfully"}
+
 # ============== EMPLOYEE ROUTES ==============
 
 @api_router.post("/employees")
