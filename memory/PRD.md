@@ -78,7 +78,7 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - [x] **Departments Management** - Full CRUD with geofence category sync, employee assignment validation
 
 ### P1 (High Priority - Done)
-- [x] AI announcements
+- [x] AI announcements (Gemini 3 Flash via Emergent LLM Key)
 - [x] Performance management
 - [x] Payroll with Stripe
 - [x] Claims management
@@ -100,14 +100,13 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - [ ] Document management
 
 ## Next Tasks
-1. **Smart Announcements AI**: Connect AI generation to LLM (GPT-5.2/Gemini/Claude)
-2. **Secured Payroll**: Complete Stripe integration for payroll processing
-3. **Leave/Claim/Overtime workflows**: Build full request-approval-record flows
-4. **Performance Management**: Build reviews, goals, and feedback features
-5. Polish advance salary request UI
-6. Add payment voucher/slip generation
-7. Implement email notifications for approvals
-8. Add report export functionality
+1. **Secured Payroll**: Complete Stripe integration for payroll processing
+2. **Leave/Claim/Overtime workflows**: Build full request-approval-record flows
+3. **Performance Management**: Build reviews, goals, and feedback features
+4. Polish advance salary request UI
+5. Add payment voucher/slip generation
+6. Implement email notifications for approvals
+7. Add report export functionality
 
 ## Technical Architecture
 - **Frontend**: React 19, Tailwind CSS, Shadcn UI, React Router
