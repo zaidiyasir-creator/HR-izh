@@ -231,8 +231,20 @@ const OvertimePage = () => {
 
       {/* Overtime Table */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="font-['Outfit']">Overtime Records</CardTitle>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[140px]" data-testid="ot-status-filter">
+              <Filter className="w-4 h-4 mr-2" />
+              <SelectValue placeholder="Filter" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -248,8 +260,8 @@ const OvertimePage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {overtime.length > 0 ? (
-                  overtime.map((record) => (
+                {filteredOvertime.length > 0 ? (
+                  filteredOvertime.map((record) => (
                     <TableRow key={record.id}>
                       <TableCell className="font-medium">{record.employee_name}</TableCell>
                       <TableCell>{format(new Date(record.date), 'MMM d, yyyy')}</TableCell>
