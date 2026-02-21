@@ -54,9 +54,13 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - ✅ Performance reviews with AI insights
 - ✅ Payroll with Stripe payment processing
 - ✅ Calendar with event display
+- ✅ **Team Calendar** with leaves, holidays, events integration and filtering
 - ✅ Settings with theme toggle, colors, company config
+- ✅ **Company Logo Upload** - file upload instead of URL
 - ✅ Responsive sidebar navigation
+- ✅ **Mobile Responsiveness** - optimized for mobile devices
 - ✅ Dark/Light mode toggle
+- ✅ **Accent Colors** - 18 customizable accent colors
 - ✅ Toast notifications
 - ✅ **Geofence Settings Page (NEW)**: Full CRUD for office locations, category editing, department assignments
 
