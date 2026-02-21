@@ -90,12 +90,28 @@ const SettingsPage = () => {
   };
 
   const colorPresets = [
+    // Blues
     { name: 'Slate', value: '#0F172A' },
+    { name: 'Navy', value: '#1E3A5F' },
     { name: 'Blue', value: '#1E40AF' },
+    { name: 'Sky', value: '#0284C7' },
+    { name: 'Cyan', value: '#0891B2' },
+    // Purples & Pinks
     { name: 'Indigo', value: '#4338CA' },
+    { name: 'Violet', value: '#6D28D9' },
     { name: 'Purple', value: '#7C3AED' },
+    { name: 'Fuchsia', value: '#C026D3' },
+    { name: 'Pink', value: '#DB2777' },
+    // Greens
     { name: 'Teal', value: '#0D9488' },
     { name: 'Emerald', value: '#059669' },
+    { name: 'Green', value: '#16A34A' },
+    { name: 'Lime', value: '#65A30D' },
+    // Warm colors
+    { name: 'Orange', value: '#EA580C' },
+    { name: 'Amber', value: '#D97706' },
+    { name: 'Red', value: '#DC2626' },
+    { name: 'Rose', value: '#E11D48' },
   ];
 
   if (loading) {
