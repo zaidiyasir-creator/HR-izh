@@ -26,6 +26,8 @@ const SettingsPage = () => {
     confirm_password: ''
   });
   const [changingPassword, setChangingPassword] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const fileInputRef = useRef(null);
 
   const isAdmin = user?.role === 'admin';
 
