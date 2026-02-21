@@ -63,7 +63,7 @@ const api = {
 
   // Events
   getEvents: () => axios.get(`${API}/events`),
-  createEvent: (data) => axios.post(`${API}/events`, data),
+  createEvent: (data) => axios.post(`${API}/events`, null, { params: data }),
   deleteEvent: (id) => axios.delete(`${API}/events/${id}`),
 
   // Settings
