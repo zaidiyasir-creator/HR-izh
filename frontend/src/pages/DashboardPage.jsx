@@ -77,36 +77,58 @@ const DashboardPage = () => {
     );
   }
 
-  const statCards = [
-    {
-      title: 'Total Employees',
-      value: stats?.total_employees || 0,
-      icon: Users,
-      color: 'text-blue-600 dark:text-blue-400',
-      bg: 'bg-blue-500/10'
-    },
-    {
-      title: 'Present Today',
-      value: stats?.present_today || 0,
-      icon: CheckCircle2,
-      color: 'text-green-600 dark:text-green-400',
-      bg: 'bg-green-500/10'
-    },
-    {
-      title: 'Pending Leaves',
+  // Role-based stat cards
+  const isAdmin = user?.role === 'admin' || user?.role === 'hr';
+  const isManager = user?.role === 'manager';
+  const isEmployee = user?.role === 'employee';
+
+  const getStatCards = () => {
+    const cards = [];
+    
+    // Total Employees - Admin sees all, Manager sees department, Employee doesn't see
+    if (isAdmin || isManager) {
+      cards.push({
+        title: isManager ? 'Dept. Employees' : 'Total Employees',
+        value: stats?.total_employees ?? 0,
+        icon: Users,
+        color: 'text-blue-600 dark:text-blue-400',
+        bg: 'bg-blue-500/10'
+      });
+    }
+    
+    // Present Today - Admin sees all, Manager sees department, Employee doesn't see
+    if (isAdmin || isManager) {
+      cards.push({
+        title: isManager ? 'Dept. Present' : 'Present Today',
+        value: stats?.present_today ?? 0,
+        icon: CheckCircle2,
+        color: 'text-green-600 dark:text-green-400',
+        bg: 'bg-green-500/10'
+      });
+    }
+    
+    // Pending Leaves - All roles see (filtered by backend)
+    cards.push({
+      title: isEmployee ? 'My Pending Leaves' : (isManager ? 'Team Pending Leaves' : 'Pending Leaves'),
       value: stats?.pending_leaves || 0,
       icon: CalendarDays,
       color: 'text-yellow-600 dark:text-yellow-400',
       bg: 'bg-yellow-500/10'
-    },
-    {
-      title: 'Pending Claims',
+    });
+    
+    // Pending Claims - All roles see (filtered by backend)
+    cards.push({
+      title: isEmployee ? 'My Pending Claims' : (isManager ? 'Team Pending Claims' : 'Pending Claims'),
       value: stats?.pending_claims || 0,
       icon: FileText,
       color: 'text-purple-600 dark:text-purple-400',
       bg: 'bg-purple-500/10'
-    }
-  ];
+    });
+    
+    return cards;
+  };
+
+  const statCards = getStatCards();
 
   return (
     <div className="space-y-4 md:space-y-8 animate-fade-in" data-testid="dashboard-page">
