@@ -107,10 +107,10 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - [ ] Document management
 
 ## Next Tasks
-1. Team Calendar enhancements - display team leaves, holidays
-2. Add payment voucher/slip generation
-3. Implement email notifications for approvals
-4. Add report export functionality (PDF/Excel)
+1. Email notifications for approvals (on hold - needs Gmail app password)
+2. Payment voucher/slip generation (PDF)
+3. Report exports (PDF/Excel)
+4. Advanced salary request features
 5. Mobile App (PWA) considerations
 
 ## Technical Architecture
