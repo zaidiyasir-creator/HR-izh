@@ -91,11 +91,15 @@ const OvertimePage = () => {
 
   const getStatusBadge = (status) => {
     const styles = {
-      pending: 'badge-warning',
-      approved: 'badge-success',
-      rejected: 'badge-error'
+      pending: 'bg-yellow-500/15 text-yellow-700 dark:text-yellow-400',
+      approved: 'bg-green-500/15 text-green-700 dark:text-green-400',
+      rejected: 'bg-red-500/15 text-red-700 dark:text-red-400'
     };
-    return <span className={styles[status]}>{status}</span>;
+    return (
+      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${styles[status]}`}>
+        {status}
+      </span>
+    );
   };
 
   const totalPendingHours = overtime.filter(o => o.status === 'pending').reduce((a, o) => a + o.hours, 0);
