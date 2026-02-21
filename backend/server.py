@@ -1640,13 +1640,11 @@ async def get_dashboard_stats(user: dict = Depends(get_current_user)):
     user_id = user.get("id")
     user_department = user.get("department")
     
-    # Base counts (visible to all)
-    total_employees = await db.users.count_documents({})
-    present_today = await db.attendance.count_documents({"date": today, "check_in": {"$ne": None}})
-    
-    # Role-based filtering for pending items
+    # Role-based stats
     if user_role in ["admin", "hr"]:
-        # Admin/HR see all pending items
+        # Admin/HR see all stats
+        total_employees = await db.users.count_documents({})
+        present_today = await db.attendance.count_documents({"date": today, "check_in": {"$ne": None}})
         pending_leaves = await db.leaves.count_documents({"status": "pending"})
         pending_claims = await db.claims.count_documents({"status": "pending"})
         pending_overtime = await db.overtime.count_documents({"status": "pending"})
@@ -1654,11 +1652,16 @@ async def get_dashboard_stats(user: dict = Depends(get_current_user)):
         recent_claims = await db.claims.find({"status": "pending"}, {"_id": 0}).sort("created_at", -1).to_list(5)
         
     elif user_role == "manager":
-        # Manager sees their department's pending items
-        # First get all employees in the manager's department
+        # Manager sees their department's stats only
         dept_employees = await db.users.find({"department": user_department}, {"id": 1}).to_list(100)
         dept_employee_ids = [e["id"] for e in dept_employees]
         
+        total_employees = len(dept_employee_ids)
+        present_today = await db.attendance.count_documents({
+            "date": today, 
+            "check_in": {"$ne": None},
+            "user_id": {"$in": dept_employee_ids}
+        })
         pending_leaves = await db.leaves.count_documents({
             "status": "pending",
             "employee_id": {"$in": dept_employee_ids}
@@ -1681,7 +1684,9 @@ async def get_dashboard_stats(user: dict = Depends(get_current_user)):
         }, {"_id": 0}).sort("created_at", -1).to_list(5)
         
     else:
-        # Employee sees only their own pending items
+        # Employee sees only their own stats - NO total employees, NO present today
+        total_employees = None  # Hidden from employees
+        present_today = None    # Hidden from employees
         pending_leaves = await db.leaves.count_documents({
             "status": "pending",
             "employee_id": user_id
@@ -1714,7 +1719,9 @@ async def get_dashboard_stats(user: dict = Depends(get_current_user)):
         "pending_overtime": pending_overtime,
         "recent_leaves": recent_leaves,
         "recent_claims": recent_claims,
-        "recent_announcements": recent_announcements
+        "recent_announcements": recent_announcements,
+        "user_role": user_role,
+        "user_department": user_department
     }
 
 # ============== ROOT ROUTE ==============
