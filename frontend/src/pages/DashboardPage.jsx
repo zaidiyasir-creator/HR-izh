@@ -279,31 +279,83 @@ const DashboardPage = () => {
                     <tr className="border-b border-border">
                       <th className="text-left py-2 md:py-3 px-2 md:px-4 text-xs md:text-sm font-medium text-muted-foreground">Employee</th>
                       <th className="text-left py-2 md:py-3 px-2 md:px-4 text-xs md:text-sm font-medium text-muted-foreground">Type</th>
-                      <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Duration</th>
-                      <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Status</th>
+                      <th className="text-left py-2 md:py-3 px-2 md:px-4 text-xs md:text-sm font-medium text-muted-foreground">Duration</th>
+                      <th className="text-left py-2 md:py-3 px-2 md:px-4 text-xs md:text-sm font-medium text-muted-foreground">Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {stats.recent_leaves.map((leave, idx) => (
                       <tr key={idx} className="border-b border-border last:border-0">
-                        <td className="py-3 px-4">
-                          <p className="font-medium">{leave.employee_name}</p>
-                          <p className="text-sm text-muted-foreground">{leave.department}</p>
+                        <td className="py-2 md:py-3 px-2 md:px-4">
+                          <p className="font-medium text-sm">{leave.employee_name}</p>
+                          <p className="text-xs text-muted-foreground hidden md:block">{leave.department}</p>
                         </td>
-                        <td className="py-3 px-4 capitalize">{leave.leave_type}</td>
-                        <td className="py-3 px-4">
+                        <td className="py-2 md:py-3 px-2 md:px-4 capitalize text-sm">{leave.leave_type}</td>
+                        <td className="py-2 md:py-3 px-2 md:px-4 text-sm">
                           {format(new Date(leave.start_date), 'MMM d')} - {format(new Date(leave.end_date), 'MMM d')}
                         </td>
-                        <td className="py-3 px-4">{getStatusBadge(leave.status)}</td>
+                        <td className="py-2 md:py-3 px-2 md:px-4">{getStatusBadge(leave.status)}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <CalendarDays className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>No recent leave requests</p>
+              <div className="text-center py-6 md:py-8 text-muted-foreground">
+                <CalendarDays className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-2 md:mb-3 opacity-50" />
+                <p className="text-sm">{user?.role === 'employee' ? 'No pending leave requests' : 'No pending leave requests'}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Recent Claims */}
+        <Card className="lg:col-span-3">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="font-['Outfit'] flex items-center gap-2 text-base md:text-lg">
+              <FileText className="w-4 h-4 md:w-5 md:h-5" />
+              {user?.role === 'employee' ? 'My Pending Claims' : 
+               user?.role === 'manager' ? 'Team Pending Claims' : 'Pending Claims'}
+            </CardTitle>
+            <Button variant="ghost" size="sm" asChild>
+              <a href="/claims" className="flex items-center gap-1 text-xs md:text-sm">
+                View All <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
+              </a>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {stats?.recent_claims?.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 md:py-3 px-2 md:px-4 text-xs md:text-sm font-medium text-muted-foreground">Employee</th>
+                      <th className="text-left py-2 md:py-3 px-2 md:px-4 text-xs md:text-sm font-medium text-muted-foreground">Type</th>
+                      <th className="text-left py-2 md:py-3 px-2 md:px-4 text-xs md:text-sm font-medium text-muted-foreground">Amount</th>
+                      <th className="text-left py-2 md:py-3 px-2 md:px-4 text-xs md:text-sm font-medium text-muted-foreground">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stats.recent_claims.map((claim, idx) => (
+                      <tr key={idx} className="border-b border-border last:border-0">
+                        <td className="py-2 md:py-3 px-2 md:px-4">
+                          <p className="font-medium text-sm">{claim.employee_name}</p>
+                          <p className="text-xs text-muted-foreground hidden md:block">{claim.department}</p>
+                        </td>
+                        <td className="py-2 md:py-3 px-2 md:px-4 capitalize text-sm">{claim.claim_type}</td>
+                        <td className="py-2 md:py-3 px-2 md:px-4 text-sm font-medium">
+                          ${claim.amount?.toFixed(2)}
+                        </td>
+                        <td className="py-2 md:py-3 px-2 md:px-4">{getStatusBadge(claim.status)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-6 md:py-8 text-muted-foreground">
+                <FileText className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-2 md:mb-3 opacity-50" />
+                <p className="text-sm">{user?.role === 'employee' ? 'No pending claims' : 'No pending claims'}</p>
               </div>
             )}
           </CardContent>
