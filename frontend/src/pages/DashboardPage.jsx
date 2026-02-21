@@ -260,13 +260,14 @@ const DashboardPage = () => {
         {/* Recent Leave Requests */}
         <Card className="lg:col-span-3">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="font-['Outfit'] flex items-center gap-2">
-              <CalendarDays className="w-5 h-5" />
-              Recent Leave Requests
+            <CardTitle className="font-['Outfit'] flex items-center gap-2 text-base md:text-lg">
+              <CalendarDays className="w-4 h-4 md:w-5 md:h-5" />
+              {user?.role === 'employee' ? 'My Pending Leaves' : 
+               user?.role === 'manager' ? 'Team Pending Leaves' : 'Pending Leave Requests'}
             </CardTitle>
             <Button variant="ghost" size="sm" asChild>
-              <a href="/leaves" className="flex items-center gap-1">
-                View All <ArrowRight className="w-4 h-4" />
+              <a href="/leaves" className="flex items-center gap-1 text-xs md:text-sm">
+                View All <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
               </a>
             </Button>
           </CardHeader>
@@ -276,8 +277,8 @@ const DashboardPage = () => {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-border">
-                      <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Employee</th>
-                      <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Type</th>
+                      <th className="text-left py-2 md:py-3 px-2 md:px-4 text-xs md:text-sm font-medium text-muted-foreground">Employee</th>
+                      <th className="text-left py-2 md:py-3 px-2 md:px-4 text-xs md:text-sm font-medium text-muted-foreground">Type</th>
                       <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Duration</th>
                       <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Status</th>
                     </tr>
