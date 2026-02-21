@@ -80,10 +80,12 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 
 ### P1 (High Priority - Done)
 - [x] AI announcements (Gemini 3 Flash via Emergent LLM Key)
-- [x] Performance management
+- [x] Performance management with AI insights
 - [x] Payroll with Stripe
-- [x] Claims management
-- [x] Overtime management
+- [x] Claims management with approval workflow
+- [x] Overtime management with approval workflow
+- [x] Leave management with balance tracking and approval workflow
+- [x] Status filtering for Leave/Claims/Overtime pages
 
 ### P2 (Medium Priority - Partially Done)
 - [x] Team Calendar
