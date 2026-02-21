@@ -105,6 +105,7 @@ class EmployeeUpdate(BaseModel):
     salary: Optional[float] = None
     avatar: Optional[str] = None
     status: Optional[str] = None
+    role: Optional[str] = None  # admin, hr, manager, employee
     geofence_category: Optional[str] = None  # office, campus, field, remote
 
 # Leave Models
