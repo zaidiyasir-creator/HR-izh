@@ -300,7 +300,9 @@ const OvertimePage = () => {
                   <TableRow>
                     <TableCell colSpan={6} className="text-center py-12">
                       <Timer className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
-                      <p className="text-muted-foreground">No overtime records</p>
+                      <p className="text-muted-foreground">
+                        {statusFilter === 'all' ? 'No overtime records' : `No ${statusFilter} overtime records`}
+                      </p>
                     </TableCell>
                   </TableRow>
                 )}
