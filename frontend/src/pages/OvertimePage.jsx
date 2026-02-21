@@ -22,7 +22,7 @@ import {
   TableRow,
 } from '../components/ui/table';
 import { toast } from 'sonner';
-import { Plus, Timer, Clock, Check, X } from 'lucide-react';
+import { Plus, Timer, Clock, Check, X, Filter } from 'lucide-react';
 import { format } from 'date-fns';
 
 const OvertimePage = () => {
@@ -30,6 +30,7 @@ const OvertimePage = () => {
   const [overtime, setOvertime] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('all');
   const [formData, setFormData] = useState({
     date: '',
     hours: '',
@@ -52,6 +53,10 @@ const OvertimePage = () => {
       setLoading(false);
     }
   };
+
+  const filteredOvertime = overtime.filter(ot => 
+    statusFilter === 'all' || ot.status === statusFilter
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
