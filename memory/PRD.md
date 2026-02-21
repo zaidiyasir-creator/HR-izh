@@ -82,6 +82,7 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - [x] **Geofence Settings** - Office locations CRUD, category-based radius, department assignments
 - [x] **Departments Management** - Full CRUD with geofence category sync, employee assignment validation
 - [x] **Menu Configuration** - Admin can hide/show menu items globally or per role
+- [x] **Malaysia 2026 Holidays** - 17 public holidays added to Team Calendar
 
 ### P1 (High Priority - Done)
 - [x] AI announcements (Gemini 3 Flash via Emergent LLM Key)
