@@ -255,8 +255,20 @@ const LeavesPage = () => {
 
       {/* Leave Requests Table */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="font-['Outfit']">Leave Requests</CardTitle>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[140px]" data-testid="leave-status-filter">
+              <Filter className="w-4 h-4 mr-2" />
+              <SelectValue placeholder="Filter" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -273,8 +285,8 @@ const LeavesPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {leaves.length > 0 ? (
-                  leaves.map((leave) => (
+                {filteredLeaves.length > 0 ? (
+                  filteredLeaves.map((leave) => (
                     <TableRow key={leave.id}>
                       <TableCell>
                         <p className="font-medium">{leave.employee_name}</p>
