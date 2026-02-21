@@ -171,17 +171,17 @@ const DashboardPage = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         {statCards.map((stat, idx) => (
           <Card key={idx} className="card-hover">
-            <CardContent className="p-6">
+            <CardContent className="p-3 md:p-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                  <p className="text-3xl font-bold mt-2 font-['Outfit']">{stat.value}</p>
+                  <p className="text-xs md:text-sm font-medium text-muted-foreground">{stat.title}</p>
+                  <p className="text-xl md:text-3xl font-bold mt-1 md:mt-2 font-['Outfit']">{stat.value}</p>
                 </div>
-                <div className={`p-3 rounded-xl ${stat.bg}`}>
-                  <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                <div className={`p-2 md:p-3 rounded-xl ${stat.bg}`}>
+                  <stat.icon className={`w-4 h-4 md:w-6 md:h-6 ${stat.color}`} />
                 </div>
               </div>
             </CardContent>
@@ -190,7 +190,7 @@ const DashboardPage = () => {
       </div>
 
       {/* Bento Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* Recent Announcements - Wide */}
         <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between">
