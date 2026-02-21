@@ -326,7 +326,9 @@ const ClaimsPage = () => {
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-12">
                       <FileText className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
-                      <p className="text-muted-foreground">No claims submitted</p>
+                      <p className="text-muted-foreground">
+                        {statusFilter === 'all' ? 'No claims submitted' : `No ${statusFilter} claims`}
+                      </p>
                     </TableCell>
                   </TableRow>
                 )}
