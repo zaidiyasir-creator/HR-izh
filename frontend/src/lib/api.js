@@ -68,6 +68,14 @@ const api = {
   // Settings
   getSettings: () => axios.get(`${API}/settings`),
   updateSettings: (data) => axios.put(`${API}/settings`, data),
+  uploadLogo: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return axios.post(`${API}/settings/logo`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+  deleteLogo: () => axios.delete(`${API}/settings/logo`),
 
   // Office Locations
   getOfficeLocations: () => axios.get(`${API}/office-locations`),
