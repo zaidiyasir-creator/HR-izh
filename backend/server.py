@@ -156,6 +156,15 @@ class GeofenceCategoryUpdate(BaseModel):
     description: Optional[str] = None
     is_active: Optional[bool] = None
 
+# Menu Configuration Models
+class MenuItemConfig(BaseModel):
+    menu_key: str
+    hidden_globally: bool = False
+    hidden_for_roles: List[str] = []
+
+class MenuConfigUpdate(BaseModel):
+    menu_items: List[MenuItemConfig]
+
 # Department Models
 class DepartmentCreate(BaseModel):
     name: str
