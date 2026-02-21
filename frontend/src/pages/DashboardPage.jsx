@@ -161,7 +161,6 @@ const DashboardPage = () => {
                 <span className="hidden sm:inline">Check Out</span>
                 <span className="sm:hidden">Out</span>
               </Button>
-              </Button>
             ) : (
               <div className="text-sm text-muted-foreground">
                 <p>Hours: {todayAttendance.total_hours?.toFixed(1)}h</p>
