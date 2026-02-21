@@ -1280,6 +1280,50 @@ async def update_settings(data: SettingsUpdate, user: dict = Depends(get_current
     settings = await db.settings.find_one({}, {"_id": 0})
     return settings
 
+@api_router.post("/settings/logo")
+async def upload_logo(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
+    """Upload company logo - admin only. Accepts PNG, JPG, SVG. Max 2MB."""
+    if user["role"] not in ["admin"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Validate file type
+    allowed_types = ["image/png", "image/jpeg", "image/jpg", "image/svg+xml", "image/webp"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Invalid file type. Allowed: PNG, JPG, SVG, WebP")
+    
+    # Read file content
+    content = await file.read()
+    
+    # Check file size (max 2MB)
+    if len(content) > 2 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File too large. Max 2MB allowed")
+    
+    # Convert to base64 for storage
+    base64_content = base64.b64encode(content).decode('utf-8')
+    logo_data = f"data:{file.content_type};base64,{base64_content}"
+    
+    # Save to settings
+    await db.settings.update_one(
+        {},
+        {"$set": {"company_logo": logo_data, "logo_filename": file.filename}},
+        upsert=True
+    )
+    
+    return {"message": "Logo uploaded successfully", "filename": file.filename}
+
+@api_router.delete("/settings/logo")
+async def delete_logo(user: dict = Depends(get_current_user)):
+    """Delete company logo - admin only"""
+    if user["role"] not in ["admin"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    await db.settings.update_one(
+        {},
+        {"$set": {"company_logo": None, "logo_filename": None}}
+    )
+    
+    return {"message": "Logo deleted"}
+
 # ============== GEOFENCE MANAGEMENT ROUTES ==============
 
 # Office Locations
