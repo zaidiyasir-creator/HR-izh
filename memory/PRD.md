@@ -55,6 +55,7 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - ✅ Payroll with Stripe payment processing
 - ✅ Calendar with event display
 - ✅ **Team Calendar** with leaves, holidays, events integration and filtering
+- ✅ **Malaysia 2026 Public Holidays** - 17 holidays pre-populated (New Year, Chinese New Year, Hari Raya, etc.)
 - ✅ Settings with theme toggle, colors, company config
 - ✅ **Company Logo Upload** - file upload instead of URL
 - ✅ Responsive sidebar navigation
