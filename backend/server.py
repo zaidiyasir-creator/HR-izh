@@ -1510,6 +1510,70 @@ async def delete_department(dept_id: str, user: dict = Depends(get_current_user)
     
     return {"message": f"Department '{dept['name']}' deleted"}
 
+# ============== MENU CONFIGURATION ==============
+
+# Default menu items configuration
+DEFAULT_MENU_ITEMS = [
+    {"menu_key": "dashboard", "name": "Dashboard", "hidden_globally": False, "hidden_for_roles": []},
+    {"menu_key": "employees", "name": "Employees", "hidden_globally": False, "hidden_for_roles": ["employee"]},
+    {"menu_key": "leaves", "name": "Leaves", "hidden_globally": False, "hidden_for_roles": []},
+    {"menu_key": "attendance", "name": "Attendance", "hidden_globally": False, "hidden_for_roles": []},
+    {"menu_key": "announcements", "name": "Announcements", "hidden_globally": False, "hidden_for_roles": []},
+    {"menu_key": "calendar", "name": "Calendar", "hidden_globally": False, "hidden_for_roles": []},
+    {"menu_key": "claims", "name": "Claims", "hidden_globally": False, "hidden_for_roles": []},
+    {"menu_key": "overtime", "name": "Overtime", "hidden_globally": False, "hidden_for_roles": []},
+    {"menu_key": "payroll", "name": "Payroll", "hidden_globally": False, "hidden_for_roles": ["employee", "manager"]},
+    {"menu_key": "performance", "name": "Performance", "hidden_globally": False, "hidden_for_roles": ["employee"]},
+    {"menu_key": "geofence", "name": "Geofence", "hidden_globally": False, "hidden_for_roles": ["employee", "manager"]},
+    {"menu_key": "settings", "name": "Settings", "hidden_globally": False, "hidden_for_roles": []},
+    {"menu_key": "menu-config", "name": "Menu Config", "hidden_globally": False, "hidden_for_roles": ["employee", "manager", "hr"]},
+]
+
+@api_router.get("/menu-config")
+async def get_menu_config(user: dict = Depends(get_current_user)):
+    """Get menu configuration - returns visibility settings for all menu items"""
+    config = await db.menu_config.find_one({"config_id": "main"}, {"_id": 0})
+    
+    if not config:
+        # Return default configuration
+        return {"menu_items": DEFAULT_MENU_ITEMS}
+    
+    return {"menu_items": config.get("menu_items", DEFAULT_MENU_ITEMS)}
+
+@api_router.put("/menu-config")
+async def update_menu_config(data: MenuConfigUpdate, user: dict = Depends(get_current_user)):
+    """Update menu configuration - admin only"""
+    if user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Only admins can configure menu visibility")
+    
+    # Merge with default to ensure all menu items exist
+    menu_items_dict = {item.menu_key: item.dict() for item in data.menu_items}
+    
+    merged_items = []
+    for default_item in DEFAULT_MENU_ITEMS:
+        if default_item["menu_key"] in menu_items_dict:
+            merged = {**default_item, **menu_items_dict[default_item["menu_key"]]}
+            merged_items.append(merged)
+        else:
+            merged_items.append(default_item)
+    
+    await db.menu_config.update_one(
+        {"config_id": "main"},
+        {"$set": {"config_id": "main", "menu_items": merged_items, "updated_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True
+    )
+    
+    return {"message": "Menu configuration updated", "menu_items": merged_items}
+
+@api_router.post("/menu-config/reset")
+async def reset_menu_config(user: dict = Depends(get_current_user)):
+    """Reset menu configuration to defaults - admin only"""
+    if user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Only admins can reset menu configuration")
+    
+    await db.menu_config.delete_one({"config_id": "main"})
+    return {"message": "Menu configuration reset to defaults", "menu_items": DEFAULT_MENU_ITEMS}
+
 # ============== DASHBOARD STATS ==============
 
 @api_router.get("/dashboard/stats")
