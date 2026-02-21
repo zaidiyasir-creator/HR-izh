@@ -1252,6 +1252,17 @@ async def get_events(user: dict = Depends(get_current_user)):
     
     return events + leave_events
 
+@api_router.delete("/events/{event_id}")
+async def delete_event(event_id: str, user: dict = Depends(get_current_user)):
+    if user["role"] not in ["admin", "hr"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    result = await db.events.delete_one({"id": event_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    return {"message": "Event deleted"}
+
 # ============== SETTINGS ROUTES ==============
 
 @api_router.get("/settings")
