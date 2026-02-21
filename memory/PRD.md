@@ -101,13 +101,11 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - [ ] Document management
 
 ## Next Tasks
-1. **Secured Payroll**: Complete Stripe integration for payroll processing
-2. **Leave/Claim/Overtime workflows**: Build full request-approval-record flows
-3. **Performance Management**: Build reviews, goals, and feedback features
-4. Polish advance salary request UI
-5. Add payment voucher/slip generation
-6. Implement email notifications for approvals
-7. Add report export functionality
+1. Team Calendar enhancements - display team leaves, holidays
+2. Add payment voucher/slip generation
+3. Implement email notifications for approvals
+4. Add report export functionality (PDF/Excel)
+5. Mobile App (PWA) considerations
 
 ## Technical Architecture
 - **Frontend**: React 19, Tailwind CSS, Shadcn UI, React Router
