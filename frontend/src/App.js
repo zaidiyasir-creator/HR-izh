@@ -18,6 +18,7 @@ import PayrollPage from './pages/PayrollPage';
 import PerformancePage from './pages/PerformancePage';
 import SettingsPage from './pages/SettingsPage';
 import GeofenceSettingsPage from './pages/GeofenceSettingsPage';
+import MenuConfigPage from './pages/MenuConfigPage';
 
 // Layout
 import MainLayout from './components/layout/MainLayout';
@@ -77,6 +78,7 @@ function AppRoutes() {
         <Route path="performance" element={<PerformancePage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="geofence-settings" element={<GeofenceSettingsPage />} />
+        <Route path="menu-config" element={<MenuConfigPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
