@@ -1636,15 +1636,74 @@ async def reset_menu_config(user: dict = Depends(get_current_user)):
 @api_router.get("/dashboard/stats")
 async def get_dashboard_stats(user: dict = Depends(get_current_user)):
     today = datetime.now(timezone.utc).date().isoformat()
+    user_role = user.get("role", "employee")
+    user_id = user.get("id")
+    user_department = user.get("department")
     
+    # Base counts (visible to all)
     total_employees = await db.users.count_documents({})
     present_today = await db.attendance.count_documents({"date": today, "check_in": {"$ne": None}})
-    pending_leaves = await db.leaves.count_documents({"status": "pending"})
-    pending_claims = await db.claims.count_documents({"status": "pending"})
-    pending_overtime = await db.overtime.count_documents({"status": "pending"})
     
-    # Recent activities
-    recent_leaves = await db.leaves.find({}, {"_id": 0}).sort("created_at", -1).to_list(5)
+    # Role-based filtering for pending items
+    if user_role in ["admin", "hr"]:
+        # Admin/HR see all pending items
+        pending_leaves = await db.leaves.count_documents({"status": "pending"})
+        pending_claims = await db.claims.count_documents({"status": "pending"})
+        pending_overtime = await db.overtime.count_documents({"status": "pending"})
+        recent_leaves = await db.leaves.find({"status": "pending"}, {"_id": 0}).sort("created_at", -1).to_list(5)
+        recent_claims = await db.claims.find({"status": "pending"}, {"_id": 0}).sort("created_at", -1).to_list(5)
+        
+    elif user_role == "manager":
+        # Manager sees their department's pending items
+        # First get all employees in the manager's department
+        dept_employees = await db.users.find({"department": user_department}, {"id": 1}).to_list(100)
+        dept_employee_ids = [e["id"] for e in dept_employees]
+        
+        pending_leaves = await db.leaves.count_documents({
+            "status": "pending",
+            "employee_id": {"$in": dept_employee_ids}
+        })
+        pending_claims = await db.claims.count_documents({
+            "status": "pending",
+            "employee_id": {"$in": dept_employee_ids}
+        })
+        pending_overtime = await db.overtime.count_documents({
+            "status": "pending",
+            "employee_id": {"$in": dept_employee_ids}
+        })
+        recent_leaves = await db.leaves.find({
+            "status": "pending",
+            "employee_id": {"$in": dept_employee_ids}
+        }, {"_id": 0}).sort("created_at", -1).to_list(5)
+        recent_claims = await db.claims.find({
+            "status": "pending",
+            "employee_id": {"$in": dept_employee_ids}
+        }, {"_id": 0}).sort("created_at", -1).to_list(5)
+        
+    else:
+        # Employee sees only their own pending items
+        pending_leaves = await db.leaves.count_documents({
+            "status": "pending",
+            "employee_id": user_id
+        })
+        pending_claims = await db.claims.count_documents({
+            "status": "pending",
+            "employee_id": user_id
+        })
+        pending_overtime = await db.overtime.count_documents({
+            "status": "pending",
+            "employee_id": user_id
+        })
+        recent_leaves = await db.leaves.find({
+            "status": "pending",
+            "employee_id": user_id
+        }, {"_id": 0}).sort("created_at", -1).to_list(5)
+        recent_claims = await db.claims.find({
+            "status": "pending",
+            "employee_id": user_id
+        }, {"_id": 0}).sort("created_at", -1).to_list(5)
+    
+    # Announcements visible to all
     recent_announcements = await db.announcements.find({}, {"_id": 0}).sort("created_at", -1).to_list(3)
     
     return {
@@ -1654,6 +1713,7 @@ async def get_dashboard_stats(user: dict = Depends(get_current_user)):
         "pending_claims": pending_claims,
         "pending_overtime": pending_overtime,
         "recent_leaves": recent_leaves,
+        "recent_claims": recent_claims,
         "recent_announcements": recent_announcements
     }
 
