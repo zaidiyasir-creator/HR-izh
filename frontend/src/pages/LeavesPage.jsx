@@ -333,7 +333,9 @@ const LeavesPage = () => {
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-12">
                       <CalendarDays className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
-                      <p className="text-muted-foreground">No leave requests</p>
+                      <p className="text-muted-foreground">
+                        {statusFilter === 'all' ? 'No leave requests' : `No ${statusFilter} leave requests`}
+                      </p>
                     </TableCell>
                   </TableRow>
                 )}
