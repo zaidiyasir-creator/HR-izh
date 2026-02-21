@@ -30,7 +30,7 @@ import {
   TableRow,
 } from '../components/ui/table';
 import { toast } from 'sonner';
-import { Plus, CalendarDays, Check, X } from 'lucide-react';
+import { Plus, CalendarDays, Check, X, Filter } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 
 const LeavesPage = () => {
@@ -39,6 +39,7 @@ const LeavesPage = () => {
   const [balance, setBalance] = useState({});
   const [loading, setLoading] = useState(true);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('all');
   const [formData, setFormData] = useState({
     leave_type: 'annual',
     start_date: '',
@@ -66,6 +67,10 @@ const LeavesPage = () => {
       setLoading(false);
     }
   };
+
+  const filteredLeaves = leaves.filter(leave => 
+    statusFilter === 'all' || leave.status === statusFilter
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
