@@ -29,7 +29,7 @@ import {
   TableRow,
 } from '../components/ui/table';
 import { toast } from 'sonner';
-import { Plus, FileText, DollarSign, Check, X } from 'lucide-react';
+import { Plus, FileText, DollarSign, Check, X, Filter } from 'lucide-react';
 import { format } from 'date-fns';
 
 const ClaimsPage = () => {
@@ -37,6 +37,7 @@ const ClaimsPage = () => {
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('all');
   const [formData, setFormData] = useState({
     claim_type: 'travel',
     amount: '',
@@ -60,6 +61,10 @@ const ClaimsPage = () => {
       setLoading(false);
     }
   };
+
+  const filteredClaims = claims.filter(claim => 
+    statusFilter === 'all' || claim.status === statusFilter
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
