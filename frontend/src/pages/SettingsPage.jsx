@@ -237,25 +237,78 @@ const SettingsPage = () => {
             <CardDescription>Configure organization details</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label>Company Name</Label>
-                <Input
-                  value={settings.company_name}
-                  onChange={(e) => setSettings({ ...settings, company_name: e.target.value })}
-                  placeholder="Your Company Name"
-                  data-testid="company-name-input"
-                />
+            {/* Company Logo Upload */}
+            <div className="space-y-3">
+              <Label className="text-base">Company Logo</Label>
+              <div className="flex items-start gap-6">
+                {/* Logo Preview */}
+                <div className="w-32 h-32 rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center overflow-hidden bg-muted/50">
+                  {settings.company_logo ? (
+                    <img 
+                      src={settings.company_logo} 
+                      alt="Company Logo" 
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  ) : (
+                    <div className="text-center text-muted-foreground">
+                      <Image className="w-8 h-8 mx-auto mb-1 opacity-50" />
+                      <span className="text-xs">No logo</span>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Upload Controls */}
+                <div className="space-y-3">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg,image/svg+xml,image/webp"
+                    onChange={handleLogoUpload}
+                    className="hidden"
+                    data-testid="logo-file-input"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingLogo}
+                    className="rounded-full"
+                    data-testid="upload-logo-btn"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
+                  </Button>
+                  
+                  {settings.company_logo && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={handleDeleteLogo}
+                      className="rounded-full text-destructive hover:text-destructive"
+                      data-testid="delete-logo-btn"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Remove Logo
+                    </Button>
+                  )}
+                  
+                  <p className="text-xs text-muted-foreground">
+                    PNG, JPG, SVG, or WebP. Max 2MB.<br/>
+                    Recommended: 200x200px or larger
+                  </p>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label>Logo URL</Label>
-                <Input
-                  value={settings.company_logo || ''}
-                  onChange={(e) => setSettings({ ...settings, company_logo: e.target.value })}
-                  placeholder="https://..."
-                  data-testid="company-logo-input"
-                />
-              </div>
+            </div>
+
+            {/* Company Name */}
+            <div className="space-y-2">
+              <Label>Company Name</Label>
+              <Input
+                value={settings.company_name}
+                onChange={(e) => setSettings({ ...settings, company_name: e.target.value })}
+                placeholder="Your Company Name"
+                data-testid="company-name-input"
+              />
             </div>
 
             {/* Leave Policies */}
