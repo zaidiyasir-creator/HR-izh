@@ -255,8 +255,20 @@ const ClaimsPage = () => {
 
       {/* Claims Table */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="font-['Outfit']">Claims History</CardTitle>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[140px]" data-testid="claim-status-filter">
+              <Filter className="w-4 h-4 mr-2" />
+              <SelectValue placeholder="Filter" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -273,8 +285,8 @@ const ClaimsPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {claims.length > 0 ? (
-                  claims.map((claim) => (
+                {filteredClaims.length > 0 ? (
+                  filteredClaims.map((claim) => (
                     <TableRow key={claim.id}>
                       <TableCell className="font-medium">{claim.employee_name}</TableCell>
                       <TableCell className="capitalize">{claim.claim_type}</TableCell>
