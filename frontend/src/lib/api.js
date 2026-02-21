@@ -90,6 +90,11 @@ const api = {
   createDepartment: (data) => axios.post(`${API}/departments`, data),
   updateDepartment: (id, data) => axios.put(`${API}/departments/${id}`, data),
   deleteDepartment: (id) => axios.delete(`${API}/departments/${id}`),
+
+  // Menu Configuration
+  getMenuConfig: () => axios.get(`${API}/menu-config`),
+  updateMenuConfig: (data) => axios.put(`${API}/menu-config`, data),
+  resetMenuConfig: () => axios.post(`${API}/menu-config/reset`),
 };
 
 export default api;
