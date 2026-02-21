@@ -109,11 +109,12 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - [ ] Document management
 
 ## Next Tasks
-1. Email notifications for approvals (on hold - needs Gmail app password)
-2. Payment voucher/slip generation (PDF)
-3. Report exports (PDF/Excel)
-4. Advanced salary request features
-5. Mobile App (PWA) considerations
+1. Secured Payroll with Stripe (P1 - playbook already available)
+2. Email notifications for approvals (on hold - user requested)
+3. Payment voucher/slip generation (PDF)
+4. Report exports (PDF/Excel)
+5. Advanced salary request features
+6. Mobile App (PWA) considerations
 
 ## Technical Architecture
 - **Frontend**: React 19, Tailwind CSS, Shadcn UI, React Router
