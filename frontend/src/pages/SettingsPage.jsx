@@ -91,6 +91,50 @@ const SettingsPage = () => {
     }
   };
 
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Invalid file type. Please upload PNG, JPG, SVG, or WebP');
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('File too large. Maximum size is 2MB');
+      return;
+    }
+
+    setUploadingLogo(true);
+    try {
+      await api.uploadLogo(file);
+      toast.success('Logo uploaded successfully');
+      fetchSettings(); // Refresh to show new logo
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to upload logo');
+    } finally {
+      setUploadingLogo(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleDeleteLogo = async () => {
+    if (!window.confirm('Are you sure you want to remove the company logo?')) return;
+    
+    try {
+      await api.deleteLogo();
+      toast.success('Logo removed');
+      setSettings(prev => ({ ...prev, company_logo: null, logo_filename: null }));
+    } catch (error) {
+      toast.error('Failed to remove logo');
+    }
+  };
+
   const colorPresets = [
     // Blues
     { name: 'Slate', value: '#0F172A' },
