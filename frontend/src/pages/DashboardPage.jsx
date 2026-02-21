@@ -109,55 +109,58 @@ const DashboardPage = () => {
   ];
 
   return (
-    <div className="space-y-8 animate-fade-in" data-testid="dashboard-page">
+    <div className="space-y-4 md:space-y-8 animate-fade-in" data-testid="dashboard-page">
       {/* Welcome Section */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold font-['Outfit'] tracking-tight">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold font-['Outfit'] tracking-tight">
             Welcome back, {user?.full_name?.split(' ')[0]}!
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-sm md:text-base text-muted-foreground mt-1">
             {format(new Date(), 'EEEE, MMMM d, yyyy')}
           </p>
         </div>
 
         {/* Quick Check-in/out */}
         <Card className="w-full md:w-auto">
-          <CardContent className="p-4 flex items-center gap-4">
+          <CardContent className="p-3 md:p-4 flex items-center gap-3 md:gap-4">
             <div className="flex-1 md:flex-none">
-              <p className="text-sm text-muted-foreground mb-1">Today's Status</p>
+              <p className="text-xs md:text-sm text-muted-foreground mb-1">Today's Status</p>
               {todayAttendance ? (
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-500" />
-                  <span className="font-medium">
+                  <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5 text-green-500" />
+                  <span className="text-sm md:text-base font-medium">
                     {todayAttendance.check_out ? 'Checked Out' : 'Checked In'}
                   </span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <XCircle className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-muted-foreground">Not checked in</span>
+                  <XCircle className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
+                  <span className="text-sm md:text-base text-muted-foreground">Not checked in</span>
                 </div>
               )}
             </div>
             {!todayAttendance ? (
               <Button 
                 onClick={handleCheckIn} 
-                className="rounded-full"
+                className="rounded-full text-sm"
                 data-testid="checkin-btn"
               >
-                <Clock className="w-4 h-4 mr-2" />
-                Check In
+                <Clock className="w-4 h-4 mr-1 md:mr-2" />
+                <span className="hidden sm:inline">Check In</span>
+                <span className="sm:hidden">In</span>
               </Button>
             ) : !todayAttendance.check_out ? (
               <Button 
                 onClick={handleCheckOut} 
                 variant="outline" 
-                className="rounded-full"
+                className="rounded-full text-sm"
                 data-testid="checkout-btn"
               >
-                <Clock className="w-4 h-4 mr-2" />
-                Check Out
+                <Clock className="w-4 h-4 mr-1 md:mr-2" />
+                <span className="hidden sm:inline">Check Out</span>
+                <span className="sm:hidden">Out</span>
+              </Button>
               </Button>
             ) : (
               <div className="text-sm text-muted-foreground">
