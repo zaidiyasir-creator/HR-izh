@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import api from '../../lib/api';
 import { 
   LayoutDashboard, Users, CalendarDays, Clock, Megaphone, 
   FileText, Timer, CreditCard, TrendingUp, Settings, LogOut,
-  Menu, X, Sun, Moon, ChevronLeft, ChevronRight, MapPin
+  Menu, X, Sun, Moon, ChevronLeft, ChevronRight, MapPin, SlidersHorizontal
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Avatar, AvatarFallback } from '../ui/avatar';
@@ -18,18 +19,19 @@ import {
 } from '../ui/dropdown-menu';
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'hr', 'manager', 'employee'] },
-  { name: 'Employees', href: '/employees', icon: Users, roles: ['admin', 'hr', 'manager'] },
-  { name: 'Leaves', href: '/leaves', icon: CalendarDays, roles: ['admin', 'hr', 'manager', 'employee'] },
-  { name: 'Attendance', href: '/attendance', icon: Clock, roles: ['admin', 'hr', 'manager', 'employee'] },
-  { name: 'Announcements', href: '/announcements', icon: Megaphone, roles: ['admin', 'hr', 'manager', 'employee'] },
-  { name: 'Calendar', href: '/calendar', icon: CalendarDays, roles: ['admin', 'hr', 'manager', 'employee'] },
-  { name: 'Claims', href: '/claims', icon: FileText, roles: ['admin', 'hr', 'manager', 'employee'] },
-  { name: 'Overtime', href: '/overtime', icon: Timer, roles: ['admin', 'hr', 'manager', 'employee'] },
-  { name: 'Payroll', href: '/payroll', icon: CreditCard, roles: ['admin', 'hr'] },
-  { name: 'Performance', href: '/performance', icon: TrendingUp, roles: ['admin', 'hr', 'manager'] },
-  { name: 'Geofence', href: '/geofence-settings', icon: MapPin, roles: ['admin', 'hr'] },
-  { name: 'Settings', href: '/settings', icon: Settings, roles: ['admin', 'hr', 'manager', 'employee'] },
+  { key: 'dashboard', name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { key: 'employees', name: 'Employees', href: '/employees', icon: Users },
+  { key: 'leaves', name: 'Leaves', href: '/leaves', icon: CalendarDays },
+  { key: 'attendance', name: 'Attendance', href: '/attendance', icon: Clock },
+  { key: 'announcements', name: 'Announcements', href: '/announcements', icon: Megaphone },
+  { key: 'calendar', name: 'Calendar', href: '/calendar', icon: CalendarDays },
+  { key: 'claims', name: 'Claims', href: '/claims', icon: FileText },
+  { key: 'overtime', name: 'Overtime', href: '/overtime', icon: Timer },
+  { key: 'payroll', name: 'Payroll', href: '/payroll', icon: CreditCard },
+  { key: 'performance', name: 'Performance', href: '/performance', icon: TrendingUp },
+  { key: 'geofence', name: 'Geofence', href: '/geofence-settings', icon: MapPin },
+  { key: 'settings', name: 'Settings', href: '/settings', icon: Settings },
+  { key: 'menu-config', name: 'Menu Config', href: '/menu-config', icon: SlidersHorizontal },
 ];
 
 const MainLayout = () => {
@@ -38,15 +40,40 @@ const MainLayout = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [menuConfig, setMenuConfig] = useState([]);
+
+  useEffect(() => {
+    fetchMenuConfig();
+  }, []);
+
+  const fetchMenuConfig = async () => {
+    try {
+      const response = await api.getMenuConfig();
+      setMenuConfig(response.data.menu_items || []);
+    } catch (error) {
+      console.error('Failed to fetch menu config:', error);
+    }
+  };
 
   const getInitials = (name) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U';
   };
 
-  // Filter navigation based on user role
-  const filteredNavigation = navigation.filter(item => 
-    item.roles.includes(user?.role || 'employee')
-  );
+  // Filter navigation based on menu config and user role
+  const filteredNavigation = navigation.filter(item => {
+    const config = menuConfig.find(c => c.menu_key === item.key);
+    
+    // If config exists, check visibility
+    if (config) {
+      // Hidden globally
+      if (config.hidden_globally) return false;
+      
+      // Hidden for user's role
+      if (config.hidden_for_roles?.includes(user?.role)) return false;
+    }
+    
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-background">
