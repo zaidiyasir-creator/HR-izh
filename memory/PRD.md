@@ -25,7 +25,7 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - Theme customization (light/dark mode, accent colors)
 - Logo and company settings customization
 
-## What's Been Implemented (Feb 20, 2026)
+## What's Been Implemented (Feb 21, 2026)
 
 ### Backend (FastAPI)
 - ✅ Auth: Register, Login, JWT token validation
