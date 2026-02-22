@@ -19,6 +19,7 @@ import PerformancePage from './pages/PerformancePage';
 import SettingsPage from './pages/SettingsPage';
 import GeofenceSettingsPage from './pages/GeofenceSettingsPage';
 import MenuConfigPage from './pages/MenuConfigPage';
+import ReportsPage from './pages/ReportsPage';
 
 // Layout
 import MainLayout from './components/layout/MainLayout';
