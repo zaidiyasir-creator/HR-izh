@@ -172,7 +172,7 @@ const ReportsPage = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${reportConfig.report_type}_report_${reportConfig.start_date}_to_${reportConfig.end_date}.${reportConfig.format}`;
+      link.download = filename;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -196,6 +196,16 @@ const ReportsPage = () => {
     } finally {
       setGenerating(false);
     }
+  };
+
+  const getSelectedEmployeeNames = () => {
+    if (employeeScope === 'all') return 'All Employees';
+    if (selectedEmployees.length === 0) return 'No employees selected';
+    const names = employees
+      .filter(e => selectedEmployees.includes(e.id))
+      .map(e => e.full_name);
+    if (names.length <= 2) return names.join(', ');
+    return `${names.slice(0, 2).join(', ')} +${names.length - 2} more`;
   };
 
   const selectedReport = reportTypes.find(r => r.id === reportConfig.report_type);
