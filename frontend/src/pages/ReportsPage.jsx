@@ -417,6 +417,12 @@ const ReportsPage = () => {
                       PDF Document
                     </div>
                   </SelectItem>
+                  <SelectItem value="xlsx">
+                    <div className="flex items-center gap-2">
+                      <FileSpreadsheet className="w-4 h-4 text-green-600" />
+                      Excel (XLSX)
+                    </div>
+                  </SelectItem>
                   <SelectItem value="csv">
                     <div className="flex items-center gap-2">
                       <FileSpreadsheet className="w-4 h-4 text-green-500" />
