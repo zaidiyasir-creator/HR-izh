@@ -25,45 +25,52 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - Theme customization (light/dark mode, accent colors)
 - Logo and company settings customization
 
-## What's Been Implemented (Feb 21, 2026)
+## What's Been Implemented (Feb 22, 2026)
 
 ### Backend (FastAPI)
 - ✅ Auth: Register, Login, JWT token validation
-- ✅ Employees: CRUD operations
-- ✅ Leaves: Request, approve/reject, balance tracking
+- ✅ Employees: CRUD operations with role update fix
+- ✅ Leaves: Request, approve/reject, balance tracking, date validation
 - ✅ Attendance: Check-in, check-out, history (with geolocation validation)
-- ✅ Claims: Submit, approve/reject
+- ✅ Claims: Submit, approve/reject, receipt upload
 - ✅ Overtime: Request, approve/reject
-- ✅ Announcements: Create, AI generate with GPT-5.2
+- ✅ Announcements: Create, AI generate with Gemini 3 Flash
 - ✅ Performance: Reviews CRUD, AI insights
 - ✅ Payroll: Create records, Stripe checkout integration
 - ✅ Events/Calendar: CRUD with leave overlay
-- ✅ Settings: Company config, leave policies
+- ✅ Settings: Company config, leave policies, remote storage
 - ✅ Dashboard: Stats aggregation
-- ✅ **Geofence Settings (NEW)**: Office locations, categories, department assignments
+- ✅ **Geofence Settings**: Office locations, categories, department assignments
+- ✅ **Reports Generation**: PDF & CSV exports for Claims, Leaves, Attendance, Overtime
+- ✅ **Receipt Upload**: Store in MongoDB or Remote Storage (Nextcloud/NAS)
+- ✅ **Remote Storage**: Nextcloud WebDAV and Local NAS integration
 
 ### Frontend (React + Shadcn UI)
 - ✅ Login/Register with split-screen design
 - ✅ Dashboard with stats, quick actions, recent data
 - ✅ Employee management with table and add dialog
-- ✅ Leave management with balance display
+- ✅ Leave management with balance display, date validation
 - ✅ Attendance with check-in/out and history
-- ✅ Claims submission and approval
+- ✅ Claims submission with **receipt upload** (PNG, JPG, PDF, Camera)
+- ✅ **Receipt Viewer** with zoom, rotate, fullscreen, download (images & PDF)
 - ✅ Overtime management
 - ✅ Announcements with AI generation (sparkle button)
 - ✅ Performance reviews with AI insights
 - ✅ Payroll with Stripe payment processing
 - ✅ Calendar with event display
 - ✅ **Team Calendar** with leaves, holidays, events integration and filtering
-- ✅ **Malaysia 2026 Public Holidays** - 17 holidays pre-populated (New Year, Chinese New Year, Hari Raya, etc.)
+- ✅ **Malaysia 2026 Public Holidays** - 18 holidays (corrected Hari Raya dates)
+- ✅ **Malaysia 2026 School Holidays** - 4 term breaks
 - ✅ Settings with theme toggle, colors, company config
 - ✅ **Company Logo Upload** - file upload instead of URL
+- ✅ **Remote Storage Settings** - Nextcloud & NAS configuration
+- ✅ **Reports Page** - Generate Claims, Leaves, Attendance, Overtime reports
 - ✅ Responsive sidebar navigation
 - ✅ **Mobile Responsiveness** - optimized for mobile devices
 - ✅ Dark/Light mode toggle
 - ✅ **Accent Colors** - 18 customizable accent colors
 - ✅ Toast notifications
-- ✅ **Geofence Settings Page (NEW)**: Full CRUD for office locations, category editing, department assignments
+- ✅ **Geofence Settings Page**: Full CRUD for office locations, category editing, department assignments
 
 ### Integrations
 - ✅ OpenAI GPT-5.2 via emergentintegrations (Announcements, Performance)
