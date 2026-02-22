@@ -165,9 +165,14 @@ const ReportsPage = () => {
       }
       filename += `_${reportConfig.start_date}_to_${reportConfig.end_date}.${reportConfig.format}`;
 
-      // Create blob and download
+      // Create blob and download with correct MIME type
+      const mimeTypes = {
+        pdf: 'application/pdf',
+        xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        csv: 'text/csv'
+      };
       const blob = new Blob([response.data], { 
-        type: reportConfig.format === 'pdf' ? 'application/pdf' : 'text/csv' 
+        type: mimeTypes[reportConfig.format] || 'application/octet-stream'
       });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
