@@ -1587,6 +1587,82 @@ def generate_csv_report(headers: List[str], data: List[List]) -> str:
     writer.writerows(data)
     return output.getvalue()
 
+def generate_xlsx_report(title: str, headers: List[str], data: List[List], company_name: str = "VANTAGE HR") -> bytes:
+    """Generate an Excel XLSX report with formatting"""
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
+    from openpyxl.utils import get_column_letter
+    
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Report"
+    
+    # Styles
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    header_fill = PatternFill(start_color="1e293b", end_color="1e293b", fill_type="solid")
+    header_alignment = Alignment(horizontal="center", vertical="center")
+    thin_border = Border(
+        left=Side(style='thin', color='cccccc'),
+        right=Side(style='thin', color='cccccc'),
+        top=Side(style='thin', color='cccccc'),
+        bottom=Side(style='thin', color='cccccc')
+    )
+    title_font = Font(bold=True, size=14)
+    subtitle_font = Font(bold=True, size=12, color="333333")
+    
+    # Title rows
+    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=len(headers))
+    ws.cell(row=1, column=1, value=company_name).font = title_font
+    ws.cell(row=1, column=1).alignment = Alignment(horizontal="center")
+    
+    ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=len(headers))
+    ws.cell(row=2, column=1, value=title).font = subtitle_font
+    ws.cell(row=2, column=1).alignment = Alignment(horizontal="center")
+    
+    # Empty row
+    ws.row_dimensions[3].height = 10
+    
+    # Headers (row 4)
+    header_row = 4
+    for col_idx, header in enumerate(headers, 1):
+        cell = ws.cell(row=header_row, column=col_idx, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = header_alignment
+        cell.border = thin_border
+    
+    # Data rows
+    alt_fill = PatternFill(start_color="f8fafc", end_color="f8fafc", fill_type="solid")
+    for row_idx, row_data in enumerate(data, header_row + 1):
+        for col_idx, value in enumerate(row_data, 1):
+            cell = ws.cell(row=row_idx, column=col_idx, value=value)
+            cell.border = thin_border
+            cell.alignment = Alignment(horizontal="center")
+            # Alternate row colors
+            if (row_idx - header_row) % 2 == 0:
+                cell.fill = alt_fill
+    
+    # Auto-adjust column widths
+    for col_idx in range(1, len(headers) + 1):
+        column_letter = get_column_letter(col_idx)
+        max_length = len(str(headers[col_idx - 1]))
+        for row in ws.iter_rows(min_row=header_row + 1, max_row=ws.max_row, min_col=col_idx, max_col=col_idx):
+            for cell in row:
+                if cell.value:
+                    max_length = max(max_length, len(str(cell.value)))
+        ws.column_dimensions[column_letter].width = min(max_length + 2, 50)
+    
+    # Footer
+    footer_row = ws.max_row + 2
+    ws.cell(row=footer_row, column=1, value=f"Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | {company_name}")
+    ws.cell(row=footer_row, column=1).font = Font(size=8, color="888888")
+    
+    # Save to bytes
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+    return output.getvalue()
+
 @api_router.post("/reports/generate")
 async def generate_report(request: ReportRequest, user: dict = Depends(get_current_user)):
     """Generate a report for claims, leaves, attendance, or overtime"""
