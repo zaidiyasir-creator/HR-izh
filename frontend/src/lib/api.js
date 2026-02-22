@@ -34,6 +34,10 @@ const api = {
   getClaims: () => axios.get(`${API}/claims`),
   createClaim: (data) => axios.post(`${API}/claims`, data),
   updateClaim: (id, data) => axios.put(`${API}/claims/${id}`, data),
+  uploadReceipt: (formData) => axios.post(`${API}/claims/upload-receipt`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  getReceipt: (id) => axios.get(`${API}/claims/receipt/${id}`),
 
   // Overtime
   getOvertime: () => axios.get(`${API}/overtime`),
