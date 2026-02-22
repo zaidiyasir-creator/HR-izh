@@ -268,12 +268,93 @@ const ClaimsPage = () => {
                   data-testid="claim-description"
                 />
               </div>
+              
+              {/* Receipt Upload Section */}
+              <div className="space-y-2">
+                <Label>Receipt (Optional)</Label>
+                <div className="flex flex-col gap-3">
+                  <div className="flex gap-2">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileSelect}
+                      accept="image/png,image/jpeg,image/jpg,image/webp,application/pdf"
+                      className="hidden"
+                    />
+                    <input
+                      type="file"
+                      ref={cameraInputRef}
+                      onChange={handleFileSelect}
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex-1"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      Upload File
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => cameraInputRef.current?.click()}
+                      className="flex-1"
+                    >
+                      <Camera className="w-4 h-4 mr-2" />
+                      Take Photo
+                    </Button>
+                  </div>
+                  
+                  {receiptFile && (
+                    <div className="flex items-center gap-2 p-2 bg-muted rounded-lg">
+                      {receiptFile.type.startsWith('image/') ? (
+                        <Image className="w-4 h-4 text-blue-500" />
+                      ) : (
+                        <File className="w-4 h-4 text-red-500" />
+                      )}
+                      <span className="text-sm truncate flex-1">{receiptFile.name}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setReceiptFile(null);
+                          setReceiptPreview(null);
+                        }}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
+                  
+                  {receiptPreview && (
+                    <div className="relative">
+                      <img
+                        src={receiptPreview}
+                        alt="Receipt preview"
+                        className="max-h-32 rounded-lg object-contain mx-auto border"
+                      />
+                    </div>
+                  )}
+                  
+                  <p className="text-xs text-muted-foreground">
+                    Accepted: PNG, JPG, WebP, PDF (Max 5MB)
+                  </p>
+                </div>
+              </div>
+              
               <div className="flex justify-end gap-3 pt-4">
                 <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)}>
                   Cancel
                 </Button>
-                <Button type="submit" data-testid="claim-submit-btn">
-                  Submit Claim
+                <Button type="submit" disabled={uploading} data-testid="claim-submit-btn">
+                  {uploading ? 'Uploading...' : 'Submit Claim'}
                 </Button>
               </div>
             </form>
