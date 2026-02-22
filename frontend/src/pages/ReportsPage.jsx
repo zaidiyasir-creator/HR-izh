@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
+import { Checkbox } from '../components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -13,12 +14,15 @@ import {
   SelectValue,
 } from '../components/ui/select';
 import { toast } from 'sonner';
-import { FileText, Download, Calendar, Filter, FileSpreadsheet, Loader2, Receipt, Clock, UserCheck, CalendarDays } from 'lucide-react';
+import { FileText, Download, Calendar, Filter, FileSpreadsheet, Loader2, Receipt, Clock, UserCheck, CalendarDays, Users, User } from 'lucide-react';
 import { format, subDays, startOfMonth, endOfMonth } from 'date-fns';
 
 const ReportsPage = () => {
   const { user } = useAuth();
   const [generating, setGenerating] = useState(false);
+  const [employees, setEmployees] = useState([]);
+  const [selectedEmployees, setSelectedEmployees] = useState([]);
+  const [employeeScope, setEmployeeScope] = useState('all'); // 'all' or 'selected'
   const [reportConfig, setReportConfig] = useState({
     report_type: 'claims',
     start_date: format(startOfMonth(new Date()), 'yyyy-MM-dd'),
@@ -26,6 +30,39 @@ const ReportsPage = () => {
     format: 'pdf',
     status: 'all'
   });
+
+  const isAdminOrHR = user?.role === 'admin' || user?.role === 'hr';
+
+  useEffect(() => {
+    if (isAdminOrHR) {
+      fetchEmployees();
+    }
+  }, [isAdminOrHR]);
+
+  const fetchEmployees = async () => {
+    try {
+      const response = await api.getEmployees();
+      setEmployees(response.data);
+    } catch (error) {
+      console.error('Failed to fetch employees:', error);
+    }
+  };
+
+  const handleEmployeeToggle = (employeeId) => {
+    setSelectedEmployees(prev => 
+      prev.includes(employeeId) 
+        ? prev.filter(id => id !== employeeId)
+        : [...prev, employeeId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedEmployees.length === employees.length) {
+      setSelectedEmployees([]);
+    } else {
+      setSelectedEmployees(employees.map(e => e.id));
+    }
+  };
 
   const reportTypes = [
     { 
