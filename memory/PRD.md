@@ -42,6 +42,7 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - ✅ Dashboard: Stats aggregation
 - ✅ **Geofence Settings**: Office locations, categories, department assignments
 - ✅ **Reports Generation**: PDF & CSV exports for Claims, Leaves, Attendance, Overtime
+- ✅ **Reports Employee Filtering**: Admin/HR can filter reports by specific employees
 - ✅ **Receipt Upload**: Store in MongoDB or Remote Storage (Nextcloud/NAS)
 - ✅ **Remote Storage**: Nextcloud WebDAV and Local NAS integration
 
