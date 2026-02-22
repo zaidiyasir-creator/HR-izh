@@ -151,9 +151,34 @@ const ClaimsPage = () => {
     try {
       const response = await api.getReceipt(receiptId);
       setViewingReceipt(response.data);
+      setViewerZoom(1);
+      setViewerRotation(0);
+      setIsFullscreen(false);
     } catch (error) {
       toast.error('Failed to load receipt');
     }
+  };
+
+  const handleCloseViewer = () => {
+    setViewingReceipt(null);
+    setViewerZoom(1);
+    setViewerRotation(0);
+    setIsFullscreen(false);
+  };
+
+  const handleZoomIn = () => setViewerZoom(prev => Math.min(prev + 0.25, 3));
+  const handleZoomOut = () => setViewerZoom(prev => Math.max(prev - 0.25, 0.5));
+  const handleRotate = () => setViewerRotation(prev => (prev + 90) % 360);
+  const handleResetView = () => { setViewerZoom(1); setViewerRotation(0); };
+
+  const handleDownload = () => {
+    if (!viewingReceipt) return;
+    const link = document.createElement('a');
+    link.href = viewingReceipt.data;
+    link.download = viewingReceipt.original_filename || 'receipt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleApprove = async (id) => {
