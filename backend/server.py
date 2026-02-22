@@ -1600,6 +1600,13 @@ async def generate_report(request: ReportRequest, user: dict = Depends(get_curre
     
     start_date = request.start_date
     end_date = request.end_date
+    employee_ids = request.employee_ids
+    
+    # Get employee names for title if specific employees selected
+    employee_names = []
+    if employee_ids and len(employee_ids) > 0:
+        employees = await db.users.find({"id": {"$in": employee_ids}}, {"_id": 0, "full_name": 1}).to_list(100)
+        employee_names = [e.get("full_name", "Unknown") for e in employees]
     
     # Build query filter
     date_filter = {}
@@ -1608,6 +1615,8 @@ async def generate_report(request: ReportRequest, user: dict = Depends(get_curre
         date_filter = {"date": {"$gte": start_date, "$lte": end_date}}
         if request.status and request.status != "all":
             date_filter["status"] = request.status
+        if employee_ids and len(employee_ids) > 0:
+            date_filter["employee_id"] = {"$in": employee_ids}
         
         claims = await db.claims.find(date_filter, {"_id": 0}).to_list(1000)
         
@@ -1627,12 +1636,23 @@ async def generate_report(request: ReportRequest, user: dict = Depends(get_curre
         data.append(["", "", "", "", "", ""])
         data.append(["TOTAL", "", f"${total:.2f}", f"Approved: ${approved:.2f}", f"Count: {len(claims)}", ""])
         
-        title = f"Claims Report ({start_date} to {end_date})"
+        # Build title with employee names
+        if employee_names:
+            if len(employee_names) == 1:
+                title = f"Claims Report - {employee_names[0]} ({start_date} to {end_date})"
+            elif len(employee_names) <= 3:
+                title = f"Claims Report - {', '.join(employee_names)} ({start_date} to {end_date})"
+            else:
+                title = f"Claims Report - {', '.join(employee_names[:3])} +{len(employee_names)-3} more ({start_date} to {end_date})"
+        else:
+            title = f"Claims Report ({start_date} to {end_date})"
         
     elif request.report_type == "leaves":
         date_filter = {"start_date": {"$gte": start_date, "$lte": end_date}}
         if request.status and request.status != "all":
             date_filter["status"] = request.status
+        if employee_ids and len(employee_ids) > 0:
+            date_filter["employee_id"] = {"$in": employee_ids}
         
         leaves = await db.leaves.find(date_filter, {"_id": 0}).to_list(1000)
         
@@ -1656,7 +1676,16 @@ async def generate_report(request: ReportRequest, user: dict = Depends(get_curre
                 l.get("status", "N/A").title()
             ])
         
-        title = f"Leave Report ({start_date} to {end_date})"
+        # Build title with employee names
+        if employee_names:
+            if len(employee_names) == 1:
+                title = f"Leave Report - {employee_names[0]} ({start_date} to {end_date})"
+            elif len(employee_names) <= 3:
+                title = f"Leave Report - {', '.join(employee_names)} ({start_date} to {end_date})"
+            else:
+                title = f"Leave Report - {', '.join(employee_names[:3])} +{len(employee_names)-3} more ({start_date} to {end_date})"
+        else:
+            title = f"Leave Report ({start_date} to {end_date})"
         
     elif request.report_type == "attendance":
         date_filter = {"date": {"$gte": start_date, "$lte": end_date}}
