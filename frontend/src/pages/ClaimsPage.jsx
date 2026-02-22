@@ -432,6 +432,7 @@ const ClaimsPage = () => {
                   <TableHead>Amount</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Description</TableHead>
+                  <TableHead>Receipt</TableHead>
                   <TableHead>Status</TableHead>
                   {isAdmin && <TableHead className="text-right">Actions</TableHead>}
                 </TableRow>
@@ -445,6 +446,21 @@ const ClaimsPage = () => {
                       <TableCell>${claim.amount.toFixed(2)}</TableCell>
                       <TableCell>{format(new Date(claim.date), 'MMM d, yyyy')}</TableCell>
                       <TableCell className="max-w-xs truncate">{claim.description}</TableCell>
+                      <TableCell>
+                        {claim.receipt_url ? (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleViewReceipt(claim.receipt_url)}
+                            className="text-blue-600 hover:text-blue-700"
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            View
+                          </Button>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">-</span>
+                        )}
+                      </TableCell>
                       <TableCell>{getStatusBadge(claim.status)}</TableCell>
                       {isAdmin && (
                         <TableCell className="text-right">
@@ -476,7 +492,7 @@ const ClaimsPage = () => {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-12">
+                    <TableCell colSpan={8} className="text-center py-12">
                       <FileText className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
                       <p className="text-muted-foreground">
                         {statusFilter === 'all' ? 'No claims submitted' : `No ${statusFilter} claims`}
@@ -489,6 +505,43 @@ const ClaimsPage = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Receipt View Dialog */}
+      <Dialog open={!!viewingReceipt} onOpenChange={() => setViewingReceipt(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-['Outfit']">Receipt</DialogTitle>
+          </DialogHeader>
+          {viewingReceipt && (
+            <div className="mt-4">
+              <p className="text-sm text-muted-foreground mb-3">
+                File: {viewingReceipt.original_filename}
+              </p>
+              {viewingReceipt.content_type?.startsWith('image/') ? (
+                <img
+                  src={viewingReceipt.data}
+                  alt="Receipt"
+                  className="max-w-full max-h-[60vh] mx-auto rounded-lg border"
+                />
+              ) : viewingReceipt.content_type === 'application/pdf' ? (
+                <div className="flex flex-col items-center gap-4">
+                  <File className="w-16 h-16 text-red-500" />
+                  <p className="text-muted-foreground">PDF Receipt</p>
+                  <a
+                    href={viewingReceipt.data}
+                    download={viewingReceipt.original_filename}
+                    className="text-blue-600 hover:underline"
+                  >
+                    Download PDF
+                  </a>
+                </div>
+              ) : (
+                <p className="text-muted-foreground">Unable to preview this file type</p>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
