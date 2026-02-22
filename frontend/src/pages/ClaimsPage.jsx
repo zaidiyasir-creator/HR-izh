@@ -29,7 +29,7 @@ import {
   TableRow,
 } from '../components/ui/table';
 import { toast } from 'sonner';
-import { Plus, FileText, DollarSign, Check, X, Filter, Upload, Camera, Image, File, Eye } from 'lucide-react';
+import { Plus, FileText, DollarSign, Check, X, Filter, Upload, Camera, Image, File, Eye, ZoomIn, ZoomOut, RotateCw, Download, Maximize2, Minimize2 } from 'lucide-react';
 import { format } from 'date-fns';
 
 const ClaimsPage = () => {
