@@ -912,27 +912,36 @@ async def upload_receipt(file: UploadFile = File(...), user: dict = Depends(get_
     file_ext = file.filename.split('.')[-1] if '.' in file.filename else 'bin'
     unique_filename = f"receipt_{uuid.uuid4()}.{file_ext}"
     
-    # Convert to base64 for storage
-    base64_content = base64.b64encode(content).decode('utf-8')
-    receipt_data = f"data:{file.content_type};base64,{base64_content}"
+    # Try to upload to remote storage first
+    remote_url = await upload_to_remote_storage(content, unique_filename, "receipts")
     
-    # Store in database
     receipt_doc = {
         "id": str(uuid.uuid4()),
         "filename": unique_filename,
         "original_filename": file.filename,
         "content_type": file.content_type,
-        "data": receipt_data,
         "uploaded_by": user["id"],
         "uploaded_at": datetime.now(timezone.utc).isoformat()
     }
+    
+    if remote_url:
+        # Stored remotely - save reference only
+        receipt_doc["remote_url"] = remote_url
+        receipt_doc["storage_type"] = "remote"
+    else:
+        # Store locally in MongoDB as base64
+        base64_content = base64.b64encode(content).decode('utf-8')
+        receipt_doc["data"] = f"data:{file.content_type};base64,{base64_content}"
+        receipt_doc["storage_type"] = "local"
+    
     await db.receipts.insert_one(receipt_doc)
     
     return {
         "message": "Receipt uploaded successfully",
         "receipt_id": receipt_doc["id"],
         "filename": file.filename,
-        "content_type": file.content_type
+        "content_type": file.content_type,
+        "storage_type": receipt_doc["storage_type"]
     }
 
 @api_router.get("/claims/receipt/{receipt_id}")
@@ -941,6 +950,25 @@ async def get_receipt(receipt_id: str, user: dict = Depends(get_current_user)):
     receipt = await db.receipts.find_one({"id": receipt_id}, {"_id": 0})
     if not receipt:
         raise HTTPException(status_code=404, detail="Receipt not found")
+    
+    # If stored remotely, fetch the content
+    if receipt.get("storage_type") == "remote" and receipt.get("remote_url"):
+        try:
+            remote_url = receipt["remote_url"]
+            if remote_url.startswith("nextcloud://"):
+                content = await get_file_from_nextcloud(remote_url)
+            elif remote_url.startswith("nas://"):
+                content = await get_file_from_nas(remote_url)
+            else:
+                raise HTTPException(status_code=500, detail="Unknown storage type")
+            
+            # Convert to base64 for response
+            base64_content = base64.b64encode(content).decode('utf-8')
+            receipt["data"] = f"data:{receipt['content_type']};base64,{base64_content}"
+        except Exception as e:
+            logger.error(f"Failed to fetch remote receipt: {e}")
+            raise HTTPException(status_code=500, detail="Failed to fetch receipt from remote storage")
+    
     return receipt
 
 @api_router.post("/claims")
