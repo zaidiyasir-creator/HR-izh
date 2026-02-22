@@ -74,6 +74,13 @@ const LeavesPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate dates - end date must be >= start date
+    if (new Date(formData.end_date) < new Date(formData.start_date)) {
+      toast.error('End date cannot be before start date');
+      return;
+    }
+    
     try {
       await api.createLeave(formData);
       toast.success('Leave request submitted');
