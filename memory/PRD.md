@@ -125,11 +125,12 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - [ ] Document management
 
 ## Next Tasks
-1. Advance Salary requests (UI polish)
-2. Payment voucher/slip generation (PDF)
-3. Secured Payroll with Stripe (P1 - playbook available, needs API key)
-4. Email notifications (on hold - user requested)
-5. Mobile App (PWA) considerations
+1. **Secured Payroll with Stripe** - Playbook available, needs full integration testing (P1)
+2. Correct remaining **Islamic holiday dates** (Awal Muharram, Maulidur Rasul, Nuzul Al-Quran) - on hold per user request
+3. Advance Salary requests (UI polish)
+4. Payment voucher/slip generation (PDF)
+5. Email notifications (on hold - user requested)
+6. Mobile App (PWA) considerations
 
 ## Technical Architecture
 - **Frontend**: React 19, Tailwind CSS, Shadcn UI, React Router
