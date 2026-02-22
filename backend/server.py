@@ -1667,8 +1667,15 @@ def generate_xlsx_report(title: str, headers: List[str], data: List[List], compa
 async def generate_report(request: ReportRequest, user: dict = Depends(get_current_user)):
     """Generate a report for claims, leaves, attendance, or overtime"""
     
-    if user["role"] not in ["admin", "hr", "manager"]:
-        raise HTTPException(status_code=403, detail="Not authorized to generate reports")
+    # Employees can only generate reports for themselves
+    is_admin_or_manager = user["role"] in ["admin", "hr", "manager"]
+    
+    if not is_admin_or_manager:
+        # Employee can only generate their own report
+        if request.employee_ids and user["id"] not in request.employee_ids:
+            raise HTTPException(status_code=403, detail="You can only generate reports for yourself")
+        # Force the report to be filtered to just this employee
+        request.employee_ids = [user["id"]]
     
     # Get company name
     settings = await db.settings.find_one({}, {"_id": 0, "company_name": 1})
