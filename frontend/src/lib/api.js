@@ -44,6 +44,10 @@ const api = {
   createOvertime: (data) => axios.post(`${API}/overtime`, data),
   updateOvertime: (id, data) => axios.put(`${API}/overtime/${id}`, data),
 
+  // Reports
+  generateReport: (config) => axios.post(`${API}/reports/generate`, config, { responseType: 'blob' }),
+  getReportTypes: () => axios.get(`${API}/reports/types`),
+
   // Announcements
   getAnnouncements: () => axios.get(`${API}/announcements`),
   createAnnouncement: (data) => axios.post(`${API}/announcements`, data),
