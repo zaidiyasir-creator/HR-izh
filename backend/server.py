@@ -2305,6 +2305,7 @@ DEFAULT_MENU_ITEMS = [
     {"menu_key": "overtime", "name": "Overtime", "hidden_globally": False, "hidden_for_roles": []},
     {"menu_key": "payroll", "name": "Payroll", "hidden_globally": False, "hidden_for_roles": ["employee", "manager"]},
     {"menu_key": "performance", "name": "Performance", "hidden_globally": False, "hidden_for_roles": ["employee"]},
+    {"menu_key": "reports", "name": "Reports", "hidden_globally": False, "hidden_for_roles": ["employee"]},
     {"menu_key": "geofence", "name": "Geofence", "hidden_globally": False, "hidden_for_roles": ["employee", "manager"]},
     {"menu_key": "settings", "name": "Settings", "hidden_globally": False, "hidden_for_roles": []},
     {"menu_key": "menu-config", "name": "Menu Config", "hidden_globally": False, "hidden_for_roles": ["employee", "manager", "hr"]},
