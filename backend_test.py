@@ -18,7 +18,7 @@ class VantageHRTester:
                         break
         
         if not self.base_url:
-            self.base_url = "https://vantage-hr-preview.preview.emergentagent.com"
+            self.base_url = "https://vantage-hr-preview-1.preview.emergentagent.com"
         
         self.token = None
         self.admin_user_id = None
