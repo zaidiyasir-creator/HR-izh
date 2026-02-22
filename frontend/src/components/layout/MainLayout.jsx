@@ -6,7 +6,7 @@ import api from '../../lib/api';
 import { 
   LayoutDashboard, Users, CalendarDays, Clock, Megaphone, 
   FileText, Timer, CreditCard, TrendingUp, Settings, LogOut,
-  Menu, X, Sun, Moon, ChevronLeft, ChevronRight, MapPin, SlidersHorizontal
+  Menu, X, Sun, Moon, ChevronLeft, ChevronRight, MapPin, SlidersHorizontal, FileBarChart
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Avatar, AvatarFallback } from '../ui/avatar';
@@ -29,6 +29,7 @@ const navigation = [
   { key: 'overtime', name: 'Overtime', href: '/overtime', icon: Timer },
   { key: 'payroll', name: 'Payroll', href: '/payroll', icon: CreditCard },
   { key: 'performance', name: 'Performance', href: '/performance', icon: TrendingUp },
+  { key: 'reports', name: 'Reports', href: '/reports', icon: FileBarChart },
   { key: 'geofence', name: 'Geofence', href: '/geofence-settings', icon: MapPin },
   { key: 'settings', name: 'Settings', href: '/settings', icon: Settings },
   { key: 'menu-config', name: 'Menu Config', href: '/menu-config', icon: SlidersHorizontal },
