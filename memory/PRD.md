@@ -96,6 +96,7 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - [x] **Menu Configuration** - Admin can hide/show menu items globally or per role
 - [x] **Malaysia 2026 Holidays** - 18 public holidays + 4 school term breaks
 - [x] **Reports Generation** - PDF & CSV exports for all HR data
+- [x] **Reports Employee Filtering** - Admin/HR can filter reports by specific employees
 
 ### P1 (High Priority - Done)
 - [x] AI announcements (Gemini 3 Flash via Emergent LLM Key)
