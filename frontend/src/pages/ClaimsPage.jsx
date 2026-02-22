@@ -534,37 +534,130 @@ const ClaimsPage = () => {
         </CardContent>
       </Card>
 
-      {/* Receipt View Dialog */}
-      <Dialog open={!!viewingReceipt} onOpenChange={() => setViewingReceipt(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="font-['Outfit']">Receipt</DialogTitle>
-          </DialogHeader>
-          {viewingReceipt && (
-            <div className="mt-4">
-              <p className="text-sm text-muted-foreground mb-3">
-                File: {viewingReceipt.original_filename}
-              </p>
-              {viewingReceipt.content_type?.startsWith('image/') ? (
-                <img
-                  src={viewingReceipt.data}
-                  alt="Receipt"
-                  className="max-w-full max-h-[60vh] mx-auto rounded-lg border"
-                />
-              ) : viewingReceipt.content_type === 'application/pdf' ? (
-                <div className="flex flex-col items-center gap-4">
-                  <File className="w-16 h-16 text-red-500" />
-                  <p className="text-muted-foreground">PDF Receipt</p>
-                  <a
-                    href={viewingReceipt.data}
-                    download={viewingReceipt.original_filename}
-                    className="text-blue-600 hover:underline"
+      {/* Enhanced Receipt Viewer Dialog */}
+      <Dialog open={!!viewingReceipt} onOpenChange={handleCloseViewer}>
+        <DialogContent className={`${isFullscreen ? 'max-w-[95vw] h-[95vh]' : 'max-w-4xl'} flex flex-col`}>
+          <DialogHeader className="flex-shrink-0">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="font-['Outfit']">Receipt Viewer</DialogTitle>
+              {viewingReceipt && (
+                <div className="flex items-center gap-1">
+                  {viewingReceipt.content_type?.startsWith('image/') && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleZoomOut}
+                        disabled={viewerZoom <= 0.5}
+                        title="Zoom Out"
+                      >
+                        <ZoomOut className="w-4 h-4" />
+                      </Button>
+                      <span className="text-sm text-muted-foreground min-w-[50px] text-center">
+                        {Math.round(viewerZoom * 100)}%
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleZoomIn}
+                        disabled={viewerZoom >= 3}
+                        title="Zoom In"
+                      >
+                        <ZoomIn className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleRotate}
+                        title="Rotate"
+                      >
+                        <RotateCw className="w-4 h-4" />
+                      </Button>
+                    </>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsFullscreen(!isFullscreen)}
+                    title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
                   >
-                    Download PDF
-                  </a>
+                    {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleDownload}
+                    title="Download"
+                  >
+                    <Download className="w-4 h-4" />
+                  </Button>
                 </div>
-              ) : (
-                <p className="text-muted-foreground">Unable to preview this file type</p>
+              )}
+            </div>
+          </DialogHeader>
+          
+          {viewingReceipt && (
+            <div className="flex-1 overflow-auto mt-2">
+              <p className="text-sm text-muted-foreground mb-3 flex-shrink-0">
+                File: {viewingReceipt.original_filename}
+                {viewingReceipt.storage_type && (
+                  <span className="ml-2 text-xs px-2 py-0.5 bg-muted rounded">
+                    {viewingReceipt.storage_type === 'remote' ? 'Remote Storage' : 'Local Storage'}
+                  </span>
+                )}
+              </p>
+              
+              {/* Image Viewer */}
+              {viewingReceipt.content_type?.startsWith('image/') && (
+                <div 
+                  className={`${isFullscreen ? 'h-[calc(95vh-150px)]' : 'max-h-[60vh]'} overflow-auto bg-muted/30 rounded-lg border flex items-center justify-center p-4`}
+                >
+                  <img
+                    src={viewingReceipt.data}
+                    alt="Receipt"
+                    className="transition-transform duration-200"
+                    style={{
+                      transform: `scale(${viewerZoom}) rotate(${viewerRotation}deg)`,
+                      transformOrigin: 'center center',
+                      maxWidth: viewerZoom > 1 ? 'none' : '100%',
+                      maxHeight: viewerZoom > 1 ? 'none' : '100%',
+                    }}
+                    onDoubleClick={handleResetView}
+                    draggable={false}
+                  />
+                </div>
+              )}
+              
+              {/* PDF Viewer */}
+              {viewingReceipt.content_type === 'application/pdf' && (
+                <div className={`${isFullscreen ? 'h-[calc(95vh-150px)]' : 'h-[60vh]'} w-full rounded-lg border overflow-hidden`}>
+                  <iframe
+                    src={viewingReceipt.data}
+                    title="PDF Receipt"
+                    className="w-full h-full"
+                    style={{ border: 'none' }}
+                  />
+                </div>
+              )}
+              
+              {/* Unsupported Type */}
+              {!viewingReceipt.content_type?.startsWith('image/') && 
+               viewingReceipt.content_type !== 'application/pdf' && (
+                <div className="flex flex-col items-center justify-center gap-4 py-12">
+                  <File className="w-16 h-16 text-muted-foreground" />
+                  <p className="text-muted-foreground">Unable to preview this file type</p>
+                  <Button onClick={handleDownload}>
+                    <Download className="w-4 h-4 mr-2" />
+                    Download File
+                  </Button>
+                </div>
+              )}
+              
+              {/* Image viewer instructions */}
+              {viewingReceipt.content_type?.startsWith('image/') && (
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  Double-click image to reset view • Use buttons to zoom and rotate
+                </p>
               )}
             </div>
           )}
