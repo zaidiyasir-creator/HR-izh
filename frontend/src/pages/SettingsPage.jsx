@@ -35,12 +35,29 @@ const SettingsPage = () => {
   const [changingPassword, setChangingPassword] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const fileInputRef = useRef(null);
+  
+  // Remote Storage State
+  const [remoteStorage, setRemoteStorage] = useState({
+    storage_type: 'local',
+    enabled: false,
+    nextcloud_url: '',
+    nextcloud_username: '',
+    nextcloud_password: '',
+    nextcloud_folder: '/VantageHR',
+    nas_path: ''
+  });
+  const [savingStorage, setSavingStorage] = useState(false);
+  const [testingConnection, setTestingConnection] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState(null);
 
   const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
     fetchSettings();
-  }, []);
+    if (isAdmin) {
+      fetchRemoteStorageSettings();
+    }
+  }, [isAdmin]);
 
   const fetchSettings = async () => {
     try {
@@ -50,6 +67,47 @@ const SettingsPage = () => {
       console.error('Failed to fetch settings:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRemoteStorageSettings = async () => {
+    try {
+      const response = await api.getRemoteStorageSettings();
+      setRemoteStorage(response.data);
+    } catch (error) {
+      console.error('Failed to fetch remote storage settings:', error);
+    }
+  };
+
+  const handleSaveRemoteStorage = async () => {
+    setSavingStorage(true);
+    try {
+      await api.updateRemoteStorageSettings(remoteStorage);
+      toast.success('Remote storage settings saved');
+      setConnectionStatus(null);
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Failed to save settings');
+    } finally {
+      setSavingStorage(false);
+    }
+  };
+
+  const handleTestConnection = async () => {
+    setTestingConnection(true);
+    setConnectionStatus(null);
+    try {
+      const response = await api.testRemoteStorageConnection();
+      setConnectionStatus(response.data);
+      if (response.data.success) {
+        toast.success(response.data.message);
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      setConnectionStatus({ success: false, message: error.response?.data?.detail || 'Connection test failed' });
+      toast.error('Connection test failed');
+    } finally {
+      setTestingConnection(false);
     }
   };
 
