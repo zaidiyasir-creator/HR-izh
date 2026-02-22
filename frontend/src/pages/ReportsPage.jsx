@@ -314,6 +314,71 @@ const ReportsPage = () => {
               </div>
             </div>
 
+            {/* Employee Selection - Admin/HR Only */}
+            {isAdminOrHR && (
+              <div className="space-y-3">
+                <Label className="flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  Employee Filter
+                </Label>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant={employeeScope === 'all' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setEmployeeScope('all')}
+                    className="flex-1"
+                  >
+                    <Users className="w-4 h-4 mr-1" />
+                    All Employees
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={employeeScope === 'selected' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setEmployeeScope('selected')}
+                    className="flex-1"
+                  >
+                    <User className="w-4 h-4 mr-1" />
+                    Select Specific
+                  </Button>
+                </div>
+
+                {employeeScope === 'selected' && (
+                  <div className="space-y-2 max-h-48 overflow-y-auto border rounded-lg p-3 bg-muted/30">
+                    <div className="flex items-center justify-between pb-2 border-b">
+                      <span className="text-sm font-medium">
+                        {selectedEmployees.length} selected
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleSelectAll}
+                        className="text-xs h-7"
+                      >
+                        {selectedEmployees.length === employees.length ? 'Deselect All' : 'Select All'}
+                      </Button>
+                    </div>
+                    {employees.map((emp) => (
+                      <div
+                        key={emp.id}
+                        className="flex items-center gap-2 py-1.5 hover:bg-muted rounded px-1 cursor-pointer"
+                        onClick={() => handleEmployeeToggle(emp.id)}
+                      >
+                        <Checkbox
+                          checked={selectedEmployees.includes(emp.id)}
+                          onCheckedChange={() => handleEmployeeToggle(emp.id)}
+                        />
+                        <span className="text-sm flex-1">{emp.full_name}</span>
+                        <span className="text-xs text-muted-foreground capitalize">{emp.role}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Status Filter (for claims, leaves, overtime) */}
             {['claims', 'leaves', 'overtime'].includes(reportConfig.report_type) && (
               <div className="space-y-2">
