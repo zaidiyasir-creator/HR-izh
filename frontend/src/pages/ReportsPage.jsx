@@ -92,6 +92,13 @@ const ReportsPage = () => {
     try {
       const response = await api.generateReport(reportConfig);
       
+      // Check if response is an error (blob might contain JSON error)
+      if (response.data instanceof Blob && response.data.type === 'application/json') {
+        const text = await response.data.text();
+        const error = JSON.parse(text);
+        throw new Error(error.detail || 'Failed to generate report');
+      }
+      
       // Create blob and download
       const blob = new Blob([response.data], { 
         type: reportConfig.format === 'pdf' ? 'application/pdf' : 'text/csv' 
@@ -105,16 +112,21 @@ const ReportsPage = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
       
-      // Check if saved to remote storage
-      const remoteStorage = response.headers['x-remote-storage'];
-      if (remoteStorage && remoteStorage !== 'local') {
-        toast.success('Report generated and saved to remote storage');
-      } else {
-        toast.success('Report generated successfully');
-      }
+      toast.success('Report generated successfully');
     } catch (error) {
       console.error('Report generation error:', error);
-      toast.error(error.response?.data?.detail || 'Failed to generate report');
+      // Handle blob error response
+      if (error.response?.data instanceof Blob) {
+        try {
+          const text = await error.response.data.text();
+          const errorData = JSON.parse(text);
+          toast.error(errorData.detail || 'Failed to generate report');
+        } catch {
+          toast.error('Failed to generate report');
+        }
+      } else {
+        toast.error(error.message || error.response?.data?.detail || 'Failed to generate report');
+      }
     } finally {
       setGenerating(false);
     }
