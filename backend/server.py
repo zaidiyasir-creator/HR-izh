@@ -1689,20 +1689,32 @@ async def generate_report(request: ReportRequest, user: dict = Depends(get_curre
         
     elif request.report_type == "attendance":
         date_filter = {"date": {"$gte": start_date, "$lte": end_date}}
+        if employee_ids and len(employee_ids) > 0:
+            date_filter["employee_id"] = {"$in": employee_ids}
         
         attendance = await db.attendance.find(date_filter, {"_id": 0}).to_list(1000)
         
-        headers = ["Employee", "Date", "Check In", "Check Out", "Status", "Location"]
+        headers = ["Employee", "Date", "Check In", "Check Out", "Hours", "Status", "Location"]
         data = [[
             a.get("employee_name", "N/A"),
             a.get("date", "N/A"),
-            a.get("check_in", "N/A"),
-            a.get("check_out", "-"),
+            a.get("check_in", "N/A")[:19] if a.get("check_in") else "-",
+            a.get("check_out", "-")[:19] if a.get("check_out") else "-",
+            f"{a.get('total_hours', 0):.1f}h" if a.get("total_hours") else "-",
             a.get("status", "N/A").title(),
-            a.get("location", "N/A")[:30]
+            a.get("location", "N/A")[:30] if a.get("location") else "-"
         ] for a in attendance]
         
-        title = f"Attendance Report ({start_date} to {end_date})"
+        # Build title with employee names
+        if employee_names:
+            if len(employee_names) == 1:
+                title = f"Attendance Report - {employee_names[0]} ({start_date} to {end_date})"
+            elif len(employee_names) <= 3:
+                title = f"Attendance Report - {', '.join(employee_names)} ({start_date} to {end_date})"
+            else:
+                title = f"Attendance Report - {', '.join(employee_names[:3])} +{len(employee_names)-3} more ({start_date} to {end_date})"
+        else:
+            title = f"Attendance Report ({start_date} to {end_date})"
         
     elif request.report_type == "overtime":
         date_filter = {"date": {"$gte": start_date, "$lte": end_date}}
