@@ -66,6 +66,7 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - ✅ **Company Logo Upload** - file upload instead of URL
 - ✅ **Remote Storage Settings** - Nextcloud & NAS configuration
 - ✅ **Reports Page** - Generate Claims, Leaves, Attendance, Overtime reports
+- ✅ **Reports Employee Filter** - Admin/HR can select specific employees for reports
 - ✅ Responsive sidebar navigation
 - ✅ **Mobile Responsiveness** - optimized for mobile devices
 - ✅ Dark/Light mode toggle
