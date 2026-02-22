@@ -1845,6 +1845,21 @@ async def generate_report(request: ReportRequest, user: dict = Depends(get_curre
                 "X-Remote-Storage": remote_url or "local"
             }
         )
+    elif request.format == "xlsx":
+        xlsx_content = generate_xlsx_report(title, headers, data, company_name)
+        
+        # Try to save to remote storage if enabled
+        filename = f"{request.report_type}_report_{start_date}_to_{end_date}.xlsx"
+        remote_url = await upload_to_remote_storage(xlsx_content, filename, "reports")
+        
+        return Response(
+            content=xlsx_content,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={
+                "Content-Disposition": f'attachment; filename="{filename}"',
+                "X-Remote-Storage": remote_url or "local"
+            }
+        )
     else:
         pdf_content = await generate_pdf_report(title, headers, data, company_name)
         
