@@ -80,6 +80,7 @@ function AppRoutes() {
         <Route path="settings" element={<SettingsPage />} />
         <Route path="geofence-settings" element={<GeofenceSettingsPage />} />
         <Route path="menu-config" element={<MenuConfigPage />} />
+        <Route path="reports" element={<ReportsPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
