@@ -482,6 +482,12 @@ async def delete_employee(employee_id: str, user: dict = Depends(get_current_use
 
 @api_router.post("/leaves")
 async def create_leave(data: LeaveRequest, user: dict = Depends(get_current_user)):
+    # Validate dates - end date must be >= start date
+    start = datetime.fromisoformat(data.start_date)
+    end = datetime.fromisoformat(data.end_date)
+    if end < start:
+        raise HTTPException(status_code=400, detail="End date cannot be before start date")
+    
     leave_id = str(uuid.uuid4())
     leave = {
         "id": leave_id,
