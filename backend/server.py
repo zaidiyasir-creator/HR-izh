@@ -1720,8 +1720,10 @@ async def generate_report(request: ReportRequest, user: dict = Depends(get_curre
         date_filter = {"date": {"$gte": start_date, "$lte": end_date}}
         if request.status and request.status != "all":
             date_filter["status"] = request.status
+        if employee_ids and len(employee_ids) > 0:
+            date_filter["employee_id"] = {"$in": employee_ids}
         
-        overtime = await db.overtime_requests.find(date_filter, {"_id": 0}).to_list(1000)
+        overtime = await db.overtime.find(date_filter, {"_id": 0}).to_list(1000)
         
         headers = ["Employee", "Date", "Hours", "Reason", "Status"]
         data = [[
@@ -1738,7 +1740,16 @@ async def generate_report(request: ReportRequest, user: dict = Depends(get_curre
         data.append(["", "", "", "", ""])
         data.append(["TOTAL", "", f"{total_hours}h", f"Approved: {approved_hours}h", f"Count: {len(overtime)}"])
         
-        title = f"Overtime Report ({start_date} to {end_date})"
+        # Build title with employee names
+        if employee_names:
+            if len(employee_names) == 1:
+                title = f"Overtime Report - {employee_names[0]} ({start_date} to {end_date})"
+            elif len(employee_names) <= 3:
+                title = f"Overtime Report - {', '.join(employee_names)} ({start_date} to {end_date})"
+            else:
+                title = f"Overtime Report - {', '.join(employee_names[:3])} +{len(employee_names)-3} more ({start_date} to {end_date})"
+        else:
+            title = f"Overtime Report ({start_date} to {end_date})"
     else:
         raise HTTPException(status_code=400, detail="Invalid report type")
     
