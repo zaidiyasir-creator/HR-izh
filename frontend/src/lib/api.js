@@ -82,6 +82,11 @@ const api = {
   },
   deleteLogo: () => axios.delete(`${API}/settings/logo`),
 
+  // Remote Storage
+  getRemoteStorageSettings: () => axios.get(`${API}/settings/remote-storage`),
+  updateRemoteStorageSettings: (data) => axios.put(`${API}/settings/remote-storage`, data),
+  testRemoteStorageConnection: () => axios.post(`${API}/settings/remote-storage/test`),
+
   // Office Locations
   getOfficeLocations: () => axios.get(`${API}/office-locations`),
   createOfficeLocation: (data) => axios.post(`${API}/office-locations`, data),
