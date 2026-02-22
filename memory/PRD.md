@@ -73,60 +73,66 @@ Build an HR system with Employee Management, Leave Management, Smart Announcemen
 - ✅ **Geofence Settings Page**: Full CRUD for office locations, category editing, department assignments
 
 ### Integrations
-- ✅ OpenAI GPT-5.2 via emergentintegrations (Announcements, Performance)
+- ✅ Gemini 3 Flash via emergentintegrations (Announcements, Performance)
 - ✅ Stripe Checkout for payroll payments
 - ✅ MongoDB for data persistence
 - ✅ **Geolocation-based Attendance**: Haversine distance calculation for geofencing
+- ✅ **Nextcloud WebDAV**: Remote storage for receipts and reports
+- ✅ **Local NAS/Filesystem**: Alternative remote storage option
+- ✅ **ReportLab**: PDF report generation
 
 ## Prioritized Backlog
 
 ### P0 (Critical - Done)
 - [x] Authentication system
-- [x] Employee management
-- [x] Leave management
+- [x] Employee management (with role update fix)
+- [x] Leave management (with date validation)
 - [x] Attendance tracking
 - [x] Dashboard overview
 - [x] **Geofence Settings** - Office locations CRUD, category-based radius, department assignments
 - [x] **Departments Management** - Full CRUD with geofence category sync, employee assignment validation
 - [x] **Menu Configuration** - Admin can hide/show menu items globally or per role
-- [x] **Malaysia 2026 Holidays** - 17 public holidays added to Team Calendar
+- [x] **Malaysia 2026 Holidays** - 18 public holidays + 4 school term breaks
+- [x] **Reports Generation** - PDF & CSV exports for all HR data
 
 ### P1 (High Priority - Done)
 - [x] AI announcements (Gemini 3 Flash via Emergent LLM Key)
 - [x] Performance management with AI insights
 - [x] Payroll with Stripe
-- [x] Claims management with approval workflow
+- [x] Claims management with receipt upload
 - [x] Overtime management with approval workflow
 - [x] Leave management with balance tracking and approval workflow
 - [x] Status filtering for Leave/Claims/Overtime pages
+- [x] **Receipt Upload & Viewer** - PNG, JPG, PDF with zoom/rotate/fullscreen
+- [x] **Remote Storage** - Nextcloud and NAS integration for files
 
 ### P2 (Medium Priority - Partially Done)
 - [x] Team Calendar
 - [x] Theme customization
+- [x] Report exports (PDF/CSV)
 - [ ] Advance Salary requests (backend ready, needs UI polish)
 - [ ] Payment voucher generation
 
 ### P3 (Nice to Have)
 - [ ] Mobile-optimized PWA
-- [ ] Email notifications
-- [ ] Export reports (PDF/Excel)
+- [ ] Email notifications (on hold per user request)
 - [ ] Bulk employee import
 - [ ] Department hierarchy management
 - [ ] Shift scheduling
 - [ ] Document management
 
 ## Next Tasks
-1. Secured Payroll with Stripe (P1 - playbook already available)
-2. Email notifications for approvals (on hold - user requested)
-3. Payment voucher/slip generation (PDF)
-4. Report exports (PDF/Excel)
-5. Advanced salary request features
-6. Mobile App (PWA) considerations
+1. Advance Salary requests (UI polish)
+2. Payment voucher/slip generation (PDF)
+3. Secured Payroll with Stripe (P1 - playbook available, needs API key)
+4. Email notifications (on hold - user requested)
+5. Mobile App (PWA) considerations
 
 ## Technical Architecture
 - **Frontend**: React 19, Tailwind CSS, Shadcn UI, React Router
-- **Backend**: FastAPI, Motor (async MongoDB), Pydantic
+- **Backend**: FastAPI, Motor (async MongoDB), Pydantic, ReportLab
 - **Database**: MongoDB
-- **AI**: emergentintegrations with GPT-5.2
+- **AI**: emergentintegrations with Gemini 3 Flash
 - **Payments**: Stripe Checkout via emergentintegrations
+- **Storage**: MongoDB (base64) + Nextcloud WebDAV + Local NAS
 - **Auth**: JWT with bcrypt password hashing
