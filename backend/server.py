@@ -741,6 +741,57 @@ async def get_today_attendance(user: dict = Depends(get_current_user)):
 
 # ============== CLAIMS ROUTES ==============
 
+@api_router.post("/claims/upload-receipt")
+async def upload_receipt(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
+    """Upload receipt for claims - accepts PNG, JPG, PDF. Max 5MB."""
+    
+    # Validate file type
+    allowed_types = ["image/png", "image/jpeg", "image/jpg", "image/webp", "application/pdf"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Invalid file type. Allowed: PNG, JPG, WebP, PDF")
+    
+    # Read file content
+    content = await file.read()
+    
+    # Check file size (max 5MB)
+    if len(content) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File too large. Max 5MB allowed")
+    
+    # Generate unique filename
+    file_ext = file.filename.split('.')[-1] if '.' in file.filename else 'bin'
+    unique_filename = f"receipt_{uuid.uuid4()}.{file_ext}"
+    
+    # Convert to base64 for storage
+    base64_content = base64.b64encode(content).decode('utf-8')
+    receipt_data = f"data:{file.content_type};base64,{base64_content}"
+    
+    # Store in database
+    receipt_doc = {
+        "id": str(uuid.uuid4()),
+        "filename": unique_filename,
+        "original_filename": file.filename,
+        "content_type": file.content_type,
+        "data": receipt_data,
+        "uploaded_by": user["id"],
+        "uploaded_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.receipts.insert_one(receipt_doc)
+    
+    return {
+        "message": "Receipt uploaded successfully",
+        "receipt_id": receipt_doc["id"],
+        "filename": file.filename,
+        "content_type": file.content_type
+    }
+
+@api_router.get("/claims/receipt/{receipt_id}")
+async def get_receipt(receipt_id: str, user: dict = Depends(get_current_user)):
+    """Get receipt data by ID"""
+    receipt = await db.receipts.find_one({"id": receipt_id}, {"_id": 0})
+    if not receipt:
+        raise HTTPException(status_code=404, detail="Receipt not found")
+    return receipt
+
 @api_router.post("/claims")
 async def create_claim(data: ClaimCreate, user: dict = Depends(get_current_user)):
     claim_id = str(uuid.uuid4())
