@@ -258,6 +258,16 @@ class SettingsUpdate(BaseModel):
     primary_color: Optional[str] = None
     leave_policies: Optional[Dict[str, int]] = None
 
+# Remote Storage Models
+class RemoteStorageConfig(BaseModel):
+    storage_type: str  # 'nextcloud', 'nas', 'local'
+    nextcloud_url: Optional[str] = None
+    nextcloud_username: Optional[str] = None
+    nextcloud_password: Optional[str] = None
+    nextcloud_folder: Optional[str] = "/VantageHR"
+    nas_path: Optional[str] = None  # Network path like /mnt/nas or //server/share
+    enabled: bool = False
+
 # ============== HELPER FUNCTIONS ==============
 
 def hash_password(password: str) -> str:
