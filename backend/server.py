@@ -1544,6 +1544,107 @@ async def delete_logo(user: dict = Depends(get_current_user)):
     
     return {"message": "Logo deleted"}
 
+# Remote Storage Configuration
+@api_router.get("/settings/remote-storage")
+async def get_remote_storage_settings(user: dict = Depends(get_current_user)):
+    """Get remote storage configuration - admin only"""
+    if user["role"] not in ["admin"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    config = await get_remote_storage_config()
+    if config:
+        # Mask password for security
+        if config.get("nextcloud_password"):
+            config["nextcloud_password"] = "********"
+    return config or {
+        "storage_type": "local",
+        "enabled": False,
+        "nextcloud_url": "",
+        "nextcloud_username": "",
+        "nextcloud_password": "",
+        "nextcloud_folder": "/VantageHR",
+        "nas_path": ""
+    }
+
+@api_router.put("/settings/remote-storage")
+async def update_remote_storage_settings(data: RemoteStorageConfig, user: dict = Depends(get_current_user)):
+    """Update remote storage configuration - admin only"""
+    if user["role"] not in ["admin"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Get existing config to preserve password if not changed
+    existing = await get_remote_storage_config()
+    
+    update_data = data.model_dump()
+    
+    # If password is masked, keep the existing one
+    if update_data.get("nextcloud_password") == "********" and existing:
+        update_data["nextcloud_password"] = existing.get("nextcloud_password")
+    
+    await db.settings.update_one(
+        {},
+        {"$set": {"remote_storage": update_data}},
+        upsert=True
+    )
+    
+    # Return config with masked password
+    result = update_data.copy()
+    if result.get("nextcloud_password"):
+        result["nextcloud_password"] = "********"
+    
+    return {"message": "Remote storage settings updated", "config": result}
+
+@api_router.post("/settings/remote-storage/test")
+async def test_remote_storage_connection(user: dict = Depends(get_current_user)):
+    """Test remote storage connection - admin only"""
+    if user["role"] not in ["admin"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    config = await get_remote_storage_config()
+    
+    if not config or not config.get("enabled"):
+        return {"success": False, "message": "Remote storage not enabled"}
+    
+    storage_type = config.get("storage_type")
+    
+    try:
+        if storage_type == "nextcloud":
+            # Test Nextcloud connection
+            webdav_url = config["nextcloud_url"].rstrip("/") + "/remote.php/dav/files/" + config["nextcloud_username"]
+            
+            options = {
+                'webdav_hostname': webdav_url,
+                'webdav_login': config["nextcloud_username"],
+                'webdav_password': config["nextcloud_password"],
+                'disable_check': True
+            }
+            
+            client = WebDAVClient(options)
+            # Try to list root directory
+            client.list("/")
+            
+            return {"success": True, "message": "Nextcloud connection successful"}
+            
+        elif storage_type == "nas":
+            # Test NAS path exists and is writable
+            nas_path = Path(config["nas_path"])
+            if not nas_path.exists():
+                return {"success": False, "message": f"NAS path does not exist: {config['nas_path']}"}
+            
+            # Test write permission
+            test_file = nas_path / ".vantage_test"
+            try:
+                test_file.write_text("test")
+                test_file.unlink()
+                return {"success": True, "message": "NAS connection successful"}
+            except Exception as e:
+                return {"success": False, "message": f"NAS not writable: {str(e)}"}
+        else:
+            return {"success": False, "message": f"Unknown storage type: {storage_type}"}
+            
+    except Exception as e:
+        return {"success": False, "message": str(e)}
+
 # ============== GEOFENCE MANAGEMENT ROUTES ==============
 
 # Office Locations
