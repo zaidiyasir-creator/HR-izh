@@ -306,6 +306,145 @@ def serialize_doc(doc):
         del doc['_id']
     return doc
 
+# ============== REMOTE STORAGE HELPERS ==============
+
+async def get_remote_storage_config():
+    """Get remote storage configuration from database"""
+    config = await db.settings.find_one({}, {"_id": 0, "remote_storage": 1})
+    return config.get("remote_storage") if config else None
+
+async def upload_to_nextcloud(file_content: bytes, filename: str, folder: str = "receipts") -> str:
+    """Upload file to Nextcloud via WebDAV"""
+    config = await get_remote_storage_config()
+    if not config or config.get("storage_type") != "nextcloud":
+        raise Exception("Nextcloud not configured")
+    
+    webdav_url = config["nextcloud_url"].rstrip("/") + "/remote.php/dav/files/" + config["nextcloud_username"]
+    
+    options = {
+        'webdav_hostname': webdav_url,
+        'webdav_login': config["nextcloud_username"],
+        'webdav_password': config["nextcloud_password"],
+        'disable_check': True
+    }
+    
+    client = WebDAVClient(options)
+    
+    # Create folder structure if needed
+    base_folder = config.get("nextcloud_folder", "/VantageHR").strip("/")
+    target_folder = f"{base_folder}/{folder}"
+    
+    # Ensure folders exist
+    try:
+        if not client.check(base_folder):
+            client.mkdir(base_folder)
+        if not client.check(target_folder):
+            client.mkdir(target_folder)
+    except Exception:
+        pass  # Folders might already exist
+    
+    # Upload file
+    remote_path = f"{target_folder}/{filename}"
+    
+    # Write to temp file and upload
+    import tempfile
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        tmp.write(file_content)
+        tmp_path = tmp.name
+    
+    try:
+        client.upload_sync(remote_path=remote_path, local_path=tmp_path)
+    finally:
+        os.unlink(tmp_path)
+    
+    # Return the share URL or path
+    return f"nextcloud://{target_folder}/{filename}"
+
+async def upload_to_nas(file_content: bytes, filename: str, folder: str = "receipts") -> str:
+    """Upload file to local NAS/filesystem"""
+    config = await get_remote_storage_config()
+    if not config or config.get("storage_type") != "nas":
+        raise Exception("NAS not configured")
+    
+    nas_path = Path(config["nas_path"])
+    target_folder = nas_path / folder
+    
+    # Ensure folder exists
+    target_folder.mkdir(parents=True, exist_ok=True)
+    
+    # Write file
+    file_path = target_folder / filename
+    async with aiofiles.open(file_path, 'wb') as f:
+        await f.write(file_content)
+    
+    return f"nas://{folder}/{filename}"
+
+async def upload_to_remote_storage(file_content: bytes, filename: str, folder: str = "receipts") -> Optional[str]:
+    """Upload file to configured remote storage"""
+    config = await get_remote_storage_config()
+    
+    if not config or not config.get("enabled"):
+        return None  # Remote storage not enabled, use local MongoDB storage
+    
+    storage_type = config.get("storage_type")
+    
+    try:
+        if storage_type == "nextcloud":
+            return await upload_to_nextcloud(file_content, filename, folder)
+        elif storage_type == "nas":
+            return await upload_to_nas(file_content, filename, folder)
+        else:
+            return None
+    except Exception as e:
+        logger.error(f"Failed to upload to remote storage: {e}")
+        return None  # Fall back to local storage
+
+async def get_file_from_nextcloud(remote_path: str) -> bytes:
+    """Download file from Nextcloud"""
+    config = await get_remote_storage_config()
+    if not config or config.get("storage_type") != "nextcloud":
+        raise Exception("Nextcloud not configured")
+    
+    webdav_url = config["nextcloud_url"].rstrip("/") + "/remote.php/dav/files/" + config["nextcloud_username"]
+    
+    options = {
+        'webdav_hostname': webdav_url,
+        'webdav_login': config["nextcloud_username"],
+        'webdav_password': config["nextcloud_password"],
+        'disable_check': True
+    }
+    
+    client = WebDAVClient(options)
+    
+    # Parse the path from nextcloud://folder/filename format
+    path = remote_path.replace("nextcloud://", "")
+    
+    import tempfile
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        tmp_path = tmp.name
+    
+    try:
+        client.download_sync(remote_path=path, local_path=tmp_path)
+        async with aiofiles.open(tmp_path, 'rb') as f:
+            content = await f.read()
+        return content
+    finally:
+        os.unlink(tmp_path)
+
+async def get_file_from_nas(remote_path: str) -> bytes:
+    """Read file from NAS"""
+    config = await get_remote_storage_config()
+    if not config or config.get("storage_type") != "nas":
+        raise Exception("NAS not configured")
+    
+    # Parse the path from nas://folder/filename format
+    path = remote_path.replace("nas://", "")
+    nas_path = Path(config["nas_path"])
+    file_path = nas_path / path
+    
+    async with aiofiles.open(file_path, 'rb') as f:
+        return await f.read()
+
 # ============== AUTH ROUTES ==============
 
 @api_router.post("/auth/register", response_model=TokenResponse)
