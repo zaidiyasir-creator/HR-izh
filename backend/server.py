@@ -1518,6 +1518,7 @@ class ReportRequest(BaseModel):
     format: str = "pdf"  # pdf or csv
     department: Optional[str] = None
     status: Optional[str] = None
+    employee_ids: Optional[List[str]] = None  # Filter by specific employee IDs
 
 async def generate_pdf_report(title: str, headers: List[str], data: List[List], company_name: str = "VANTAGE HR"):
     """Generate a PDF report with the given data"""
