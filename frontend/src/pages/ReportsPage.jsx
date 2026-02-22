@@ -125,9 +125,20 @@ const ReportsPage = () => {
       return;
     }
 
+    if (employeeScope === 'selected' && selectedEmployees.length === 0) {
+      toast.error('Please select at least one employee');
+      return;
+    }
+
     setGenerating(true);
     try {
-      const response = await api.generateReport(reportConfig);
+      // Build request with employee filter
+      const requestData = {
+        ...reportConfig,
+        employee_ids: employeeScope === 'selected' ? selectedEmployees : null
+      };
+
+      const response = await api.generateReport(requestData);
       
       // Check if response is an error (blob might contain JSON error)
       if (response.data instanceof Blob && response.data.type === 'application/json') {
@@ -136,6 +147,24 @@ const ReportsPage = () => {
         throw new Error(error.detail || 'Failed to generate report');
       }
       
+      // Generate filename with employee name(s) if specific employees selected
+      let filename = `${reportConfig.report_type}_report`;
+      if (employeeScope === 'selected' && selectedEmployees.length > 0) {
+        const selectedNames = employees
+          .filter(e => selectedEmployees.includes(e.id))
+          .map(e => e.full_name?.replace(/\s+/g, '_') || 'Employee')
+          .slice(0, 3); // Limit to first 3 names in filename
+        
+        if (selectedEmployees.length === 1) {
+          filename = `${reportConfig.report_type}_${selectedNames[0]}`;
+        } else if (selectedEmployees.length <= 3) {
+          filename = `${reportConfig.report_type}_${selectedNames.join('_')}`;
+        } else {
+          filename = `${reportConfig.report_type}_${selectedNames.join('_')}_and_${selectedEmployees.length - 3}_more`;
+        }
+      }
+      filename += `_${reportConfig.start_date}_to_${reportConfig.end_date}.${reportConfig.format}`;
+
       // Create blob and download
       const blob = new Blob([response.data], { 
         type: reportConfig.format === 'pdf' ? 'application/pdf' : 'text/csv' 
