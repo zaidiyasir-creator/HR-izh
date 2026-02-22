@@ -49,6 +49,9 @@ const ClaimsPage = () => {
   const [receiptPreview, setReceiptPreview] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [viewingReceipt, setViewingReceipt] = useState(null);
+  const [viewerZoom, setViewerZoom] = useState(1);
+  const [viewerRotation, setViewerRotation] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
 
