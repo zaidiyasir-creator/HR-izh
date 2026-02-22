@@ -432,6 +432,194 @@ const SettingsPage = () => {
         </Card>
       )}
 
+      {/* Remote Storage Settings - Admin Only */}
+      {isAdmin && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-['Outfit'] flex items-center gap-2">
+              <Cloud className="w-5 h-5" />
+              Remote Storage
+            </CardTitle>
+            <CardDescription>Configure Nextcloud or NAS for storing receipts and reports</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Enable Remote Storage */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-base">Enable Remote Storage</Label>
+                <p className="text-sm text-muted-foreground">
+                  Store uploaded files on external storage instead of database
+                </p>
+              </div>
+              <Switch
+                checked={remoteStorage.enabled}
+                onCheckedChange={(checked) => setRemoteStorage({ ...remoteStorage, enabled: checked })}
+                data-testid="remote-storage-switch"
+              />
+            </div>
+
+            {remoteStorage.enabled && (
+              <>
+                {/* Storage Type Selection */}
+                <div className="space-y-2">
+                  <Label>Storage Type</Label>
+                  <Select
+                    value={remoteStorage.storage_type}
+                    onValueChange={(value) => setRemoteStorage({ ...remoteStorage, storage_type: value })}
+                  >
+                    <SelectTrigger data-testid="storage-type-select">
+                      <SelectValue placeholder="Select storage type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="nextcloud">
+                        <div className="flex items-center gap-2">
+                          <Cloud className="w-4 h-4" />
+                          Nextcloud
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="nas">
+                        <div className="flex items-center gap-2">
+                          <HardDrive className="w-4 h-4" />
+                          Local NAS / Network Share
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Nextcloud Settings */}
+                {remoteStorage.storage_type === 'nextcloud' && (
+                  <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      <Cloud className="w-4 h-4" />
+                      Nextcloud Configuration
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2 md:col-span-2">
+                        <Label>Nextcloud URL</Label>
+                        <Input
+                          type="url"
+                          value={remoteStorage.nextcloud_url}
+                          onChange={(e) => setRemoteStorage({ ...remoteStorage, nextcloud_url: e.target.value })}
+                          placeholder="https://cloud.yourcompany.com"
+                          data-testid="nextcloud-url-input"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Username</Label>
+                        <Input
+                          value={remoteStorage.nextcloud_username}
+                          onChange={(e) => setRemoteStorage({ ...remoteStorage, nextcloud_username: e.target.value })}
+                          placeholder="your-username"
+                          data-testid="nextcloud-username-input"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>App Password</Label>
+                        <Input
+                          type="password"
+                          value={remoteStorage.nextcloud_password}
+                          onChange={(e) => setRemoteStorage({ ...remoteStorage, nextcloud_password: e.target.value })}
+                          placeholder="••••••••"
+                          data-testid="nextcloud-password-input"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Generate from Nextcloud: Settings → Security → App Passwords
+                        </p>
+                      </div>
+                      <div className="space-y-2 md:col-span-2">
+                        <Label>Storage Folder</Label>
+                        <div className="flex items-center gap-2">
+                          <FolderOpen className="w-4 h-4 text-muted-foreground" />
+                          <Input
+                            value={remoteStorage.nextcloud_folder}
+                            onChange={(e) => setRemoteStorage({ ...remoteStorage, nextcloud_folder: e.target.value })}
+                            placeholder="/VantageHR"
+                            data-testid="nextcloud-folder-input"
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Files will be stored in subfolders: /receipts, /reports
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* NAS Settings */}
+                {remoteStorage.storage_type === 'nas' && (
+                  <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center gap-2 text-sm font-medium">
+                      <HardDrive className="w-4 h-4" />
+                      NAS / Network Share Configuration
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label>Mount Path</Label>
+                      <Input
+                        value={remoteStorage.nas_path}
+                        onChange={(e) => setRemoteStorage({ ...remoteStorage, nas_path: e.target.value })}
+                        placeholder="/mnt/nas/vantage-hr or /app/storage"
+                        data-testid="nas-path-input"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        The path must be mounted and writable by the application.
+                        Files will be stored in subfolders: /receipts, /reports
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Connection Status */}
+                {connectionStatus && (
+                  <div className={`flex items-center gap-2 p-3 rounded-lg ${
+                    connectionStatus.success 
+                      ? 'bg-green-500/10 text-green-700 dark:text-green-400' 
+                      : 'bg-red-500/10 text-red-700 dark:text-red-400'
+                  }`}>
+                    {connectionStatus.success ? (
+                      <CheckCircle className="w-5 h-5" />
+                    ) : (
+                      <XCircle className="w-5 h-5" />
+                    )}
+                    <span className="text-sm">{connectionStatus.message}</span>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex justify-end gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleTestConnection}
+                    disabled={testingConnection || !remoteStorage.enabled}
+                    className="rounded-full"
+                    data-testid="test-connection-btn"
+                  >
+                    {testingConnection ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                    )}
+                    Test Connection
+                  </Button>
+                  <Button
+                    onClick={handleSaveRemoteStorage}
+                    disabled={savingStorage}
+                    className="rounded-full"
+                    data-testid="save-storage-btn"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {savingStorage ? 'Saving...' : 'Save Storage Settings'}
+                  </Button>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* User Info */}
       <Card>
         <CardHeader>
