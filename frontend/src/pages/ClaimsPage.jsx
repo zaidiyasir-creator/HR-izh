@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
@@ -29,7 +29,7 @@ import {
   TableRow,
 } from '../components/ui/table';
 import { toast } from 'sonner';
-import { Plus, FileText, DollarSign, Check, X, Filter } from 'lucide-react';
+import { Plus, FileText, DollarSign, Check, X, Filter, Upload, Camera, Image, File, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 
 const ClaimsPage = () => {
@@ -42,8 +42,15 @@ const ClaimsPage = () => {
     claim_type: 'travel',
     amount: '',
     description: '',
-    date: ''
+    date: '',
+    receipt_url: ''
   });
+  const [receiptFile, setReceiptFile] = useState(null);
+  const [receiptPreview, setReceiptPreview] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [viewingReceipt, setViewingReceipt] = useState(null);
+  const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
 
   const isAdmin = user?.role === 'admin' || user?.role === 'hr' || user?.role === 'manager';
 
@@ -66,19 +73,83 @@ const ClaimsPage = () => {
     statusFilter === 'all' || claim.status === statusFilter
   );
 
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Invalid file type. Allowed: PNG, JPG, WebP, PDF');
+        return;
+      }
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File too large. Max 5MB allowed');
+        return;
+      }
+      setReceiptFile(file);
+      
+      // Create preview for images
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => setReceiptPreview(e.target.result);
+        reader.readAsDataURL(file);
+      } else {
+        setReceiptPreview(null);
+      }
+    }
+  };
+
+  const uploadReceipt = async () => {
+    if (!receiptFile) return null;
+    
+    setUploading(true);
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', receiptFile);
+      
+      const response = await api.uploadReceipt(formDataUpload);
+      return response.data.receipt_id;
+    } catch (error) {
+      toast.error('Failed to upload receipt');
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    let receiptId = null;
+    if (receiptFile) {
+      receiptId = await uploadReceipt();
+      if (!receiptId) return; // Upload failed
+    }
+    
     try {
       await api.createClaim({
         ...formData,
-        amount: parseFloat(formData.amount)
+        amount: parseFloat(formData.amount),
+        receipt_url: receiptId || formData.receipt_url
       });
       toast.success('Claim submitted');
       setIsAddOpen(false);
-      setFormData({ claim_type: 'travel', amount: '', description: '', date: '' });
+      setFormData({ claim_type: 'travel', amount: '', description: '', date: '', receipt_url: '' });
+      setReceiptFile(null);
+      setReceiptPreview(null);
       fetchClaims();
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to submit claim');
+    }
+  };
+
+  const handleViewReceipt = async (receiptId) => {
+    try {
+      const response = await api.getReceipt(receiptId);
+      setViewingReceipt(response.data);
+    } catch (error) {
+      toast.error('Failed to load receipt');
     }
   };
 
