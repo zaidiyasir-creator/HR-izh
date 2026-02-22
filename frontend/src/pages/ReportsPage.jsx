@@ -446,13 +446,19 @@ const ReportsPage = () => {
                       {reportConfig.start_date} to {reportConfig.end_date} • {reportConfig.format.toUpperCase()}
                       {reportConfig.status !== 'all' && ` • ${reportConfig.status}`}
                     </p>
+                    {isAdminOrHR && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        <Users className="w-3 h-3 inline mr-1" />
+                        {getSelectedEmployeeNames()}
+                      </p>
+                    )}
                   </div>
                 </>
               )}
             </div>
             <Button 
               onClick={handleGenerateReport} 
-              disabled={generating}
+              disabled={generating || (employeeScope === 'selected' && selectedEmployees.length === 0)}
               size="lg"
               className="rounded-full w-full sm:w-auto"
               data-testid="generate-report-btn"
