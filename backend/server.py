@@ -1500,6 +1500,248 @@ async def delete_event(event_id: str, user: dict = Depends(get_current_user)):
     
     return {"message": "Event deleted"}
 
+# ============== REPORTS ROUTES ==============
+
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch, cm
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image as RLImage
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+import io
+import csv
+
+class ReportRequest(BaseModel):
+    report_type: str  # claims, leaves, attendance, overtime
+    start_date: str
+    end_date: str
+    format: str = "pdf"  # pdf or csv
+    department: Optional[str] = None
+    status: Optional[str] = None
+
+async def generate_pdf_report(title: str, headers: List[str], data: List[List], company_name: str = "VANTAGE HR"):
+    """Generate a PDF report with the given data"""
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4), topMargin=0.5*inch, bottomMargin=0.5*inch)
+    
+    elements = []
+    styles = getSampleStyleSheet()
+    
+    # Title
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=18,
+        alignment=TA_CENTER,
+        spaceAfter=20
+    )
+    elements.append(Paragraph(f"{company_name}", title_style))
+    elements.append(Paragraph(title, styles['Heading2']))
+    elements.append(Spacer(1, 20))
+    
+    # Table
+    table_data = [headers] + data
+    
+    # Calculate column widths
+    col_count = len(headers)
+    available_width = landscape(A4)[0] - inch
+    col_width = available_width / col_count
+    
+    table = Table(table_data, colWidths=[col_width] * col_count)
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1e293b')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('TOPPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8fafc')]),
+        ('TOPPADDING', (0, 1), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
+    ]))
+    
+    elements.append(table)
+    
+    # Footer
+    elements.append(Spacer(1, 30))
+    footer_style = ParagraphStyle('Footer', parent=styles['Normal'], fontSize=8, textColor=colors.grey)
+    elements.append(Paragraph(f"Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | VANTAGE HR System", footer_style))
+    
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer.getvalue()
+
+def generate_csv_report(headers: List[str], data: List[List]) -> str:
+    """Generate a CSV report"""
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(headers)
+    writer.writerows(data)
+    return output.getvalue()
+
+@api_router.post("/reports/generate")
+async def generate_report(request: ReportRequest, user: dict = Depends(get_current_user)):
+    """Generate a report for claims, leaves, attendance, or overtime"""
+    
+    if user["role"] not in ["admin", "hr", "manager"]:
+        raise HTTPException(status_code=403, detail="Not authorized to generate reports")
+    
+    # Get company name
+    settings = await db.settings.find_one({}, {"_id": 0, "company_name": 1})
+    company_name = settings.get("company_name", "VANTAGE HR") if settings else "VANTAGE HR"
+    
+    start_date = request.start_date
+    end_date = request.end_date
+    
+    # Build query filter
+    date_filter = {}
+    
+    if request.report_type == "claims":
+        date_filter = {"date": {"$gte": start_date, "$lte": end_date}}
+        if request.status and request.status != "all":
+            date_filter["status"] = request.status
+        
+        claims = await db.claims.find(date_filter, {"_id": 0}).to_list(1000)
+        
+        headers = ["Employee", "Type", "Amount", "Date", "Description", "Status"]
+        data = [[
+            c.get("employee_name", "N/A"),
+            c.get("claim_type", "N/A").title(),
+            f"${c.get('amount', 0):.2f}",
+            c.get("date", "N/A"),
+            c.get("description", "N/A")[:50],
+            c.get("status", "N/A").title()
+        ] for c in claims]
+        
+        # Add summary
+        total = sum(c.get("amount", 0) for c in claims)
+        approved = sum(c.get("amount", 0) for c in claims if c.get("status") == "approved")
+        data.append(["", "", "", "", "", ""])
+        data.append(["TOTAL", "", f"${total:.2f}", f"Approved: ${approved:.2f}", f"Count: {len(claims)}", ""])
+        
+        title = f"Claims Report ({start_date} to {end_date})"
+        
+    elif request.report_type == "leaves":
+        date_filter = {"start_date": {"$gte": start_date, "$lte": end_date}}
+        if request.status and request.status != "all":
+            date_filter["status"] = request.status
+        
+        leaves = await db.leaves.find(date_filter, {"_id": 0}).to_list(1000)
+        
+        headers = ["Employee", "Type", "Start Date", "End Date", "Days", "Reason", "Status"]
+        data = []
+        for l in leaves:
+            try:
+                start = datetime.fromisoformat(l.get("start_date", ""))
+                end = datetime.fromisoformat(l.get("end_date", ""))
+                days = (end - start).days + 1
+            except:
+                days = "N/A"
+            
+            data.append([
+                l.get("employee_name", "N/A"),
+                l.get("leave_type", "N/A").title(),
+                l.get("start_date", "N/A"),
+                l.get("end_date", "N/A"),
+                str(days),
+                l.get("reason", "N/A")[:40],
+                l.get("status", "N/A").title()
+            ])
+        
+        title = f"Leave Report ({start_date} to {end_date})"
+        
+    elif request.report_type == "attendance":
+        date_filter = {"date": {"$gte": start_date, "$lte": end_date}}
+        
+        attendance = await db.attendance.find(date_filter, {"_id": 0}).to_list(1000)
+        
+        headers = ["Employee", "Date", "Check In", "Check Out", "Status", "Location"]
+        data = [[
+            a.get("employee_name", "N/A"),
+            a.get("date", "N/A"),
+            a.get("check_in", "N/A"),
+            a.get("check_out", "-"),
+            a.get("status", "N/A").title(),
+            a.get("location", "N/A")[:30]
+        ] for a in attendance]
+        
+        title = f"Attendance Report ({start_date} to {end_date})"
+        
+    elif request.report_type == "overtime":
+        date_filter = {"date": {"$gte": start_date, "$lte": end_date}}
+        if request.status and request.status != "all":
+            date_filter["status"] = request.status
+        
+        overtime = await db.overtime_requests.find(date_filter, {"_id": 0}).to_list(1000)
+        
+        headers = ["Employee", "Date", "Hours", "Reason", "Status"]
+        data = [[
+            o.get("employee_name", "N/A"),
+            o.get("date", "N/A"),
+            str(o.get("hours", 0)),
+            o.get("reason", "N/A")[:50],
+            o.get("status", "N/A").title()
+        ] for o in overtime]
+        
+        # Add summary
+        total_hours = sum(o.get("hours", 0) for o in overtime)
+        approved_hours = sum(o.get("hours", 0) for o in overtime if o.get("status") == "approved")
+        data.append(["", "", "", "", ""])
+        data.append(["TOTAL", "", f"{total_hours}h", f"Approved: {approved_hours}h", f"Count: {len(overtime)}"])
+        
+        title = f"Overtime Report ({start_date} to {end_date})"
+    else:
+        raise HTTPException(status_code=400, detail="Invalid report type")
+    
+    # Generate report in requested format
+    if request.format == "csv":
+        csv_content = generate_csv_report(headers, data)
+        
+        # Try to save to remote storage if enabled
+        filename = f"{request.report_type}_report_{start_date}_to_{end_date}.csv"
+        remote_url = await upload_to_remote_storage(csv_content.encode(), filename, "reports")
+        
+        return Response(
+            content=csv_content,
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f'attachment; filename="{filename}"',
+                "X-Remote-Storage": remote_url or "local"
+            }
+        )
+    else:
+        pdf_content = await generate_pdf_report(title, headers, data, company_name)
+        
+        # Try to save to remote storage if enabled
+        filename = f"{request.report_type}_report_{start_date}_to_{end_date}.pdf"
+        remote_url = await upload_to_remote_storage(pdf_content, filename, "reports")
+        
+        return Response(
+            content=pdf_content,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f'attachment; filename="{filename}"',
+                "X-Remote-Storage": remote_url or "local"
+            }
+        )
+
+@api_router.get("/reports/types")
+async def get_report_types(user: dict = Depends(get_current_user)):
+    """Get available report types"""
+    return [
+        {"id": "claims", "name": "Claims Report", "description": "Expense claims summary"},
+        {"id": "leaves", "name": "Leave Report", "description": "Leave requests and approvals"},
+        {"id": "attendance", "name": "Attendance Report", "description": "Check-in/out records"},
+        {"id": "overtime", "name": "Overtime Report", "description": "Overtime hours summary"}
+    ]
+
 # ============== SETTINGS ROUTES ==============
 
 @api_router.get("/settings")
