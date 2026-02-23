@@ -440,7 +440,7 @@ const SettingsPage = () => {
               <Cloud className="w-5 h-5" />
               Remote Storage
             </CardTitle>
-            <CardDescription>Configure Nextcloud or NAS for storing receipts and reports</CardDescription>
+            <CardDescription>Configure IZHcloud or NAS for storing receipts and reports</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Enable Remote Storage */}
