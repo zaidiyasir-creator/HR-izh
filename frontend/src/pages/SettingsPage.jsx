@@ -487,17 +487,17 @@ const SettingsPage = () => {
                   </Select>
                 </div>
 
-                {/* Nextcloud Settings */}
+                {/* IZHcloud Settings */}
                 {remoteStorage.storage_type === 'nextcloud' && (
                   <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-2 text-sm font-medium">
                       <Cloud className="w-4 h-4" />
-                      Nextcloud Configuration
+                      IZHcloud Configuration
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2 md:col-span-2">
-                        <Label>Nextcloud URL</Label>
+                        <Label>IZHcloud URL</Label>
                         <Input
                           type="url"
                           value={remoteStorage.nextcloud_url}
@@ -525,7 +525,7 @@ const SettingsPage = () => {
                           data-testid="nextcloud-password-input"
                         />
                         <p className="text-xs text-muted-foreground">
-                          Generate from Nextcloud: Settings → Security → App Passwords
+                          Generate from IZHcloud: Settings → Security → App Passwords
                         </p>
                       </div>
                       <div className="space-y-2 md:col-span-2">
