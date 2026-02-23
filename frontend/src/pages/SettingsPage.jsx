@@ -241,55 +241,57 @@ const SettingsPage = () => {
         <p className="text-muted-foreground">Customize your VANTAGE HR experience</p>
       </div>
 
-      {/* Theme Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-['Outfit'] flex items-center gap-2">
-            <Palette className="w-5 h-5" />
-            Appearance
-          </CardTitle>
-          <CardDescription>Customize the look and feel</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Theme Toggle */}
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label className="text-base">Dark Mode</Label>
-              <p className="text-sm text-muted-foreground">
-                Switch between light and dark themes
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Sun className="w-4 h-4 text-muted-foreground" />
-              <Switch
-                checked={theme === 'dark'}
-                onCheckedChange={toggleTheme}
-                data-testid="theme-switch"
-              />
-              <Moon className="w-4 h-4 text-muted-foreground" />
-            </div>
-          </div>
-
-          {/* Color Presets */}
-          <div className="space-y-3">
-            <Label className="text-base">Accent Color</Label>
-            <div className="flex flex-wrap gap-3">
-              {colorPresets.map((color) => (
-                <button
-                  key={color.value}
-                  onClick={() => setPrimaryColor(color.value)}
-                  className={`w-10 h-10 rounded-full transition-all hover:scale-110 ${
-                    primaryColor === color.value ? 'ring-2 ring-offset-2 ring-primary' : ''
-                  }`}
-                  style={{ backgroundColor: color.value }}
-                  title={color.name}
-                  data-testid={`color-${color.name.toLowerCase()}`}
+      {/* Theme Settings - Admin Only */}
+      {isAdmin && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-['Outfit'] flex items-center gap-2">
+              <Palette className="w-5 h-5" />
+              Appearance
+            </CardTitle>
+            <CardDescription>Customize the look and feel</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Theme Toggle */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-base">Dark Mode</Label>
+                <p className="text-sm text-muted-foreground">
+                  Switch between light and dark themes
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Sun className="w-4 h-4 text-muted-foreground" />
+                <Switch
+                  checked={theme === 'dark'}
+                  onCheckedChange={toggleTheme}
+                  data-testid="theme-switch"
                 />
-              ))}
+                <Moon className="w-4 h-4 text-muted-foreground" />
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+
+            {/* Color Presets */}
+            <div className="space-y-3">
+              <Label className="text-base">Accent Color</Label>
+              <div className="flex flex-wrap gap-3">
+                {colorPresets.map((color) => (
+                  <button
+                    key={color.value}
+                    onClick={() => setPrimaryColor(color.value)}
+                    className={`w-10 h-10 rounded-full transition-all hover:scale-110 ${
+                      primaryColor === color.value ? 'ring-2 ring-offset-2 ring-primary' : ''
+                    }`}
+                    style={{ backgroundColor: color.value }}
+                    title={color.name}
+                    data-testid={`color-${color.name.toLowerCase()}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Company Settings - Admin Only */}
       {isAdmin && (
